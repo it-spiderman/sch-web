@@ -1,0 +1,88 @@
+body {
+    background: url('images/tennis.jpg') no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+.login {
+    width: 300px;
+    height: auto;
+    margin-left:auto;
+    margin-right: auto;
+    margin-top: 10%;
+    padding:20px;
+    background-color: #efefef;
+    border: 2px solid #d6d6d6;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.login p {
+    width: 300px;
+    text-align: center;
+    font-size:24px;
+    color:gray;
+    margin-bottom: 40px;
+}
+.login .btn-login {
+    width: 150px;
+    height: 40px;
+    margin-top:15px;
+}
+
+.loginFail {
+    background-color: #f17878;
+    font-size: 12px !important;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 10px !important;
+    color: #505050 !important;
+    border-radius: 10px;
+}
+
+.header {
+    width: 100%;
+    background-color: #e6e6e6;
+    height: auto;
+}
+ 
+.header .content {
+    padding:5px;
+    height: auto;
+}
+
+.header .content .userPrefs {
+    list-style-type: none;
+    float:right;
+    margin: 0px !important;
+}
+
+.header .content .userPrefs form {
+    margin: 0px;
+}
+
+.header .content .userPrefs .userName {
+    color: #5d5e5f;
+}
+
+.header .content .userPrefs li {
+    line-height: 40px !important;
+    float: left;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.header .content .companyLogo {
+    margin-left:10px;
+    float:left;
+}
+
+.header .content .companyLogo img {
+    height: 40px;
+
+}
+
+.clear {
+    clear: both;
+}
