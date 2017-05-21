@@ -11,13 +11,12 @@ class ScheduleController {
     }
     
     public function login( $sMail, $sPassword ) {
-        $vRes = $this->mModel->executeOdooCommand( 'res.partner', 'search_read',
-                array( array( array('email', '=', $sMail), array('zip', '=', $sPassword ) ) ),
-                array( 'fields' => array( 'name' ), 'limit' => 1 )
-        );
+        $vRes = $this->mModel->executeOdooCommand( 'res.partner', 'authenticate_web_user',
+                array( array( 'uname' => $sMail, 'pass' => $sPassword ) )
+	);
 
-        if( is_array( $vRes ) && count( $vRes ) == 1 ) {
-            $this->mModel->setOdooUser( $vRes[0] );
+        if( $vRes ) {
+            $this->mModel->setOdooUser( $vRes );
             $this->mModel->setSessionToken();
             return true;
         }
@@ -31,5 +30,21 @@ class ScheduleController {
     
     public function isLoginFail() {
         return $this->bLoginFailed;
+    }
+    
+    public function getProfile() {
+	$aOdooUser = $this->mModel->getOdooUser();
+	if( !$aOdooUser ) {
+	    return false;
+	}
+	$vRes = $this->mModel->executeOdooCommand( 'res.partner', 'get_profile_info',
+		array( array( 'user_id' => $aOdooUser['id'] ) ) );
+
+	if( $vRes ) {
+	    $this->mModel->setOdooProfile( $vRes );
+	    return true;
+	}
+	return false;
+	
     }
 }

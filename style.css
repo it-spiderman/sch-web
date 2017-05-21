@@ -83,6 +83,34 @@ body {
 
 }
 
+.sidebar {
+    float: left;
+    width: 250px;
+    background-color: #e6e6e6;
+    margin-top: 5px;
+    height: 100%;
+}
+
+.sidebar .content {
+    padding:20px;
+}
+
+.sidebar .content .credit {
+    font-size: 18px;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+.contentField {
+    float: left;
+    background-color: #e6e6e6;
+    margin: 5px;
+}
+
+.contentField .content {
+    padding: 20px;
+}
+
 .clear {
     clear: both;
 }

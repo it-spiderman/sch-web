@@ -10,12 +10,20 @@ class ScheduleView {
         $this->mController = $oController;
     }
     
-    public function output() {
-        if( $this->mModel->getSessionToken() ) {
+    public function homepage() {
+        if( $this->mModel->getOdooUser() ) {
             return $this->getMain();
         } else {
             return $this->getLoginForm();
         }
+    }
+    
+    public function balance() {
+	if( $this->mModel->getOdooUser() ) {
+	    return $this->getBalance();
+	} else {
+	    return $this->getLoginForm();
+	}
     }
     
     public function getLoginForm() {
@@ -44,6 +52,7 @@ class ScheduleView {
     
     public function getMain() {
         $sHTML = $this->getHeader();
+	$sHTML .= $this->getSidebar();
         return $sHTML;
     }
     
@@ -60,5 +69,63 @@ class ScheduleView {
         return $sHTML;
     }
     
+    private function getSidebar() {
+	$aUser = $this->mModel->getOdooUser();
+	
+	$sHTML = "<div class='sidebar'><div class='content'><div class='membership-info'>"
+		. "<span class='label label-info'>Current status:&nbsp<b>";
+	$sHTML .= ucfirst ( $aUser['status'] ) . "</b></span>";
+	if( $aUser['status'] == 'paid' ) {
+	    $sHTML .= "<span class='label'>Valid until:&nbsp" . $aUser['end'] . "</span>";
+	}
+	$sHTML .= "</div>";
+	if( $aUser['credit'] != 0 ) {
+	    $sHTML .= "<a href='balance.php'><span class='label label-success credit'>Credit balance: &nbsp"
+		     . $this->mModel->toCurrency( $aUser['credit'] ) . "</span></a>";
+	}
+	$sHTML .= "</div></div>";
+	return $sHTML;
+    }
+    
+    public function getBalance() {
+	$sHTML = $this->getHeader();
+	$sHTML .= $this->getSidebar();
+	
+	$aProfile = $this->mModel->getOdooProfile();
+	$sHTML .= "<div class='contentField'><div class='content'>";
+	$sHTML .= "<div class='memberships'><h2>Memberships</h2>";
+	$sHTML .= "<table class='table table-hover table-bordered'>"
+		. "<tr><th>Date</th><th>Name</th><th>Price</th><th>Start</th><th>End</th></tr>";
+	foreach( $aProfile['m_lines'] as $vValue ) {
+	    $sHTML .= "<tr>";
+	    foreach( $vValue as $sField ) {
+		$sHTML .= "<td>" . $sField . "</td>";
+	    }
+	    $sHTML .= "</tr>";
+	}
+	$sHTML .= "</table></div>";
+	
+	$sHTML .= "<div class='credit_lines'><h2>Credit history</h2>";
+	$sHTML .= "<table class='table table-hover table-bordered'>"
+		. "<tr><th>Date</th><th>Amount</th><th>Method</th><th>Direction</th>"
+		. "<th>Transfer ID</th><th>Note</th></tr>";
+	foreach( $aProfile['c_lines'] as $vValue ) {
+	    $sHTML .= "<tr>";
+	    foreach( $vValue as $sField ) {
+		$sHTML .= "<td>" . $sField . "</td>";
+	    }
+	    $sHTML .= "</tr>";
+	}
+	$sHTML .= "</table></div>";
+	
+	$sHTML .= "</div></div>";
+	
+	
+	return $sHTML;
+    }
+    
+    public function error() {
+	return "<p class='error'>Error has occured, please try later</p>";
+    }
     
 }

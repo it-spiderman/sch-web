@@ -21,7 +21,7 @@
             $oController = new ScheduleController( $oModel );
             $oView = new ScheduleView( $oModel, $oController );
 
-            if (isset($_POST['action']) && !empty($_POST['action'])) {
+            /*if (isset($_POST['action']) && !empty($_POST['action'])) {
                 $sAction = $_POST['action'];
                 switch ( $sAction ) {
                     case 'login':
@@ -33,11 +33,17 @@
                     default:
                         break;
                 }
-            }
+            }*/
+	    if( !$oController->getProfile() ) {
+		echo $oView->error();
+		die();
+	    }
             
-            echo $oView->homepage();
+            echo $oView->balance();
         ?>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
     </body>
 </html>
+
+
