@@ -9,21 +9,9 @@ class ScheduleView {
         $this->mModel = $oModel;
         $this->mController = $oController;
     }
-    
-    public function homepage() {
-        if( $this->mModel->getOdooUser() ) {
-            return $this->getMain();
-        } else {
-            return $this->getLoginForm();
-        }
-    }
-    
-    public function balance() {
-	if( $this->mModel->getOdooUser() ) {
-	    return $this->getBalance();
-	} else {
-	    return $this->getLoginForm();
-	}
+ 
+    public function getMain() {
+	return $this->getBalance();
     }
     
     public function getLoginForm() {
@@ -50,12 +38,6 @@ class ScheduleView {
             </form></div></div>';
     }
     
-    public function getMain() {
-        $sHTML = $this->getHeader();
-	$sHTML .= $this->getSidebar();
-        return $sHTML;
-    }
-    
     private function getHeader() {
         $aUser = $this->mModel->getOdooUser();
 
@@ -80,9 +62,10 @@ class ScheduleView {
 	}
 	$sHTML .= "</div>";
 	if( $aUser['credit'] != 0 ) {
-	    $sHTML .= "<a href='balance.php'><span class='label label-success credit'>Credit balance: &nbsp"
+	    $sHTML .= "<a href='index.php?title=balance'><span class='label label-success credit'>Credit balance: &nbsp"
 		     . $this->mModel->toCurrency( $aUser['credit'] ) . "</span></a>";
 	}
+	$sHTML .= "<a href='index.php?title=booking'><span class='label label-success'>Make a booking!</span></a>";
 	$sHTML .= "</div></div>";
 	return $sHTML;
     }
@@ -123,6 +106,47 @@ class ScheduleView {
 	
 	return $sHTML;
     }
+    
+    public function getBooking( $aParams ) {
+	$sHTML = $this->getHeader();
+	$sHTML .= $this->getSidebar();
+	
+	$aProfile = $this->mModel->getOdooProfile();
+	$sHTML .= "<div class='contentField'><div class='content'>";
+	$sHTML .= "<p>Book an appointment</p>";
+	$sHTML .= "<form method='GET' action='index.php'>";
+	$sHTML .= "<input name='title' value='booking' type='hidden'>";
+	if( empty( $aParams ) ) {
+	    $sHTML .= $this->getDateForm();
+	} else if( isset( $aParams['date'] ) && !isset( $aParams['resource'] ) ) {
+	    $sHTML .= $this->getResourceForm( $aParams['date'] );
+	}
+	
+	$sHTML .= "</div></div>";
+	
+	
+	return $sHTML;
+    }
+    
+    protected function getDateForm() {
+	$sHTML = "<form method='GET' action='index.php'>";
+	$sHTML .= "<input name='title' value='booking' type='hidden'>";
+	$sHTML .= "<input name='date' type='date'/>";
+	$sHTML .= "<input type='submit' value='Next step'><form>";
+	return $sHTML;
+    }
+    
+    protected function getResourceForm( $sDate ) {
+	$sHTML = "<p>Pick a resource<p>";
+	$sHTML .= "<form method='GET' action='index.php'>";
+	$sHTML .= "<input name='title' value='booking' type='hidden'>";
+	$sHTML .= "<input name='date' type='date' readonly='true' value='$sDate'/>";
+	$sHTML .= "<input name='resource' type='text'/>";
+	$sHTML .= "<input type='submit' value='Next step'><form>";
+	return $sHTML;
+    }
+    
+    
     
     public function error() {
 	return "<p class='error'>Error has occured, please try later</p>";
