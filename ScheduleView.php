@@ -110,16 +110,15 @@ class ScheduleView {
     public function getBooking( $aParams ) {
 	$sHTML = $this->getHeader();
 	$sHTML .= $this->getSidebar();
-	
-	$aProfile = $this->mModel->getOdooProfile();
+
 	$sHTML .= "<div class='contentField'><div class='content'>";
 	$sHTML .= "<p>Book an appointment</p>";
-	$sHTML .= "<form method='GET' action='index.php'>";
-	$sHTML .= "<input name='title' value='booking' type='hidden'>";
 	if( empty( $aParams ) ) {
 	    $sHTML .= $this->getDateForm();
 	} else if( isset( $aParams['date'] ) && !isset( $aParams['resource'] ) ) {
 	    $sHTML .= $this->getResourceForm( $aParams['date'] );
+	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] ) ) {
+	    $sHTML .= $this->getFinalForm( $aParams );
 	}
 	
 	$sHTML .= "</div></div>";
@@ -129,7 +128,8 @@ class ScheduleView {
     }
     
     protected function getDateForm() {
-	$sHTML = "<form method='GET' action='index.php'>";
+	$sHTML = "<p id='booking-title'>Select the date:<p>";
+	$sHTML .= "<form method='GET' action='index.php'>";
 	$sHTML .= "<input name='title' value='booking' type='hidden'>";
 	$sHTML .= "<input name='date' type='date'/>";
 	$sHTML .= "<input type='submit' value='Next step'><form>";
@@ -137,12 +137,24 @@ class ScheduleView {
     }
     
     protected function getResourceForm( $sDate ) {
-	$sHTML = "<p>Pick a resource<p>";
-	$sHTML .= "<form method='GET' action='index.php'>";
-	$sHTML .= "<input name='title' value='booking' type='hidden'>";
-	$sHTML .= "<input name='date' type='date' readonly='true' value='$sDate'/>";
-	$sHTML .= "<input name='resource' type='text'/>";
-	$sHTML .= "<input type='submit' value='Next step'><form>";
+	$sHTML = "<p id='booking-title'>Select the court:<p>";
+	$sHTML .= "<p id='booking-date'>Date: " . $sDate . "</p>";
+	$aCourts = $this->mController->getResourcesForDate( $sDate );
+	if( empty( $aCourts ) ) {
+	    $sHTML .= "<p id='no-courts'>No courts are available<p>";
+	    return $sHTML;
+	}
+	foreach( $aCourts as $aCourt ) {
+	    $sHTML .= "<a href='" . $this->mModel->getBaseUrl()
+		    . "?title=booking&date=" . $sDate . "&resource=". $aCourt['id'] . "'>" 
+		    . $aCourt['name'] . "</a>";
+	}
+	return $sHTML;
+    }
+    
+    protected function getFinalForm( $aParams ) {
+	$sHTML = "<p id='booking-title'>Pick the time:<p>";
+	$sHTML .= "<p id='booking-date'>Date: " . $aParams['date'] . "</p>";
 	return $sHTML;
     }
     

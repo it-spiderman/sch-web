@@ -47,4 +47,11 @@ class ScheduleController {
 	return false;
 	
     }
+
+    public function getResourcesForDate( $sDate ) {
+	$vRes = $this->mModel->executeOdooCommand( 'membership_lite.resource', 'get_resource_for_date',
+		array( array( 'date' => $sDate ) ) );
+	return $vRes;
+	
+    }
 }

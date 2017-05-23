@@ -12,9 +12,14 @@ class ScheduleModel {
     private $iOdooUID;
     private $aOdooUser;
     private $aOdooProfile;
+    private $sBaseUrl = "/Scheduling/index.php";
 
     public function __construct() {
 	
+    }
+    
+    public function getBaseUrl() {
+	return $this->sBaseUrl;
     }
 
     public function getOdooUser() {
