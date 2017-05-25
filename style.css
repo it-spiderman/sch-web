@@ -5,6 +5,11 @@ body {
     -o-background-size: cover;
     background-size: cover;
 }
+
+body, html {
+  height: 100%;
+}
+
 .login {
     width: 300px;
     height: auto;
@@ -86,31 +91,83 @@ body {
 .sidebar {
     float: left;
     width: 250px;
-    background-color: #e6e6e6;
+    background-color: #3f51b5;
     margin-top: 5px;
-    height: 100%;
+    height: 80%;
+    min-height: 600px;
+    position: absolute;
+    z-index: 100;
 }
 
 .sidebar .content {
-    padding:20px;
+    padding-top:20px;
+    z-index: 102;
 }
 
-.sidebar .content .credit {
-    font-size: 18px;
-    padding: 10px;
-    margin-top: 30px;
+.sidebar .content .main-menu {
+    margin: 0px;
+}
+
+.sidebar .content .main-menu li{
+    list-style-type: none;
+    height: 40px;
+    padding-top:20px;
+    background-color: #3446ad;
+}
+.sidebar .content .main-menu li:hover{
+    cursor:pointer;
+    background-color: #283aa0;
+}
+
+.sidebar .content .main-menu li p{
+    font-weight: bold;
+    color:white;
+    text-decoration: none;
+    padding-left: 10px;
+}
+
+.sidebar .content .status-menu {
+    margin:0px;
+    margin-top:50px;
+}
+
+.sidebar .content .status-menu li{
+    list-style-type: none;
+    height: 30px;
+    color: white;
+    padding-left:10px;
+}
+
+.sidebar .content .status-menu #credit-status{
+    font-size: 1.6em;
 }
 
 .contentField {
-    float: left;
+    position:absolute;
+    width: 100%;
+    height: auto;
+    min-height: 80%;
     background-color: #e6e6e6;
-    margin: 5px;
+    margin-top: 5px;
+    padding-bottom: 30px;
 }
 
 .contentField .content {
     padding: 20px;
+    padding-left:270px;
 }
 
+.bookingTitle {
+    font-size: 2em;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
 .clear {
     clear: both;
+}
+
+.footer {
+    background-color: #3f51b5;
+    width: 100%;
+    height:40px;
 }

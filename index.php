@@ -8,6 +8,7 @@
         <!-- Bootstrap -->
         <link href="plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="style.css" type="text/css" rel="stylesheet"/>
+	<link href="booking.css" type="text/css" rel="stylesheet"/>
     </head>
     <body>
 	<?php
@@ -57,6 +58,17 @@
 		    if( isset( $_GET['resource'] ) ) {
 			$aParams['resource'] = $_GET['resource'];
 		    }
+		    if( isset( $_GET['from'] ) && isset( $_GET['to'] ) ) {
+			$aParams['from'] = $_GET['from'];
+			$aParams['to'] = $_GET['to'];
+		    }
+		    if( isset( $_GET['error'] ) ) {
+			$aParams['error'] = true;
+		    }
+		    if( isset( $_GET['success'] ) ) {
+			$aParams['success'] = true;
+		    }
+
 		    echo $oView->getBooking( $aParams );
 		    break;
 		case 'balance':
@@ -72,5 +84,6 @@
 	?>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script src="behaviour.js"></script>
     </body>
 </html>

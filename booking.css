@@ -1,0 +1,131 @@
+.day-schedule {
+    width: 400px;
+    margin: 0px;
+}
+
+.day-schedule li {
+    list-style-type: none;
+    margin: 2px;
+    padding: 5px 10px 5px 10px;
+    background-color: #f4f5f7;
+}
+
+.day-schedule li:hover {
+    background-color: #74f783;
+    color: white;
+    cursor: pointer;
+}
+
+.day-schedule li p {
+    float:left;
+    margin: 0px;
+}
+
+.day-schedule li span{
+    float:right;
+    font-weight: bold;
+    margin: 0px;
+}
+
+.day-schedule li.hourBooked {
+    background-color: pink;
+}
+
+.day-schedule li.hourClosed {
+    background-color: #91857d;
+}
+
+.day-schedule li.hourNew {
+    background-color: #74f783;
+}
+
+
+.day-schedule li.hourBooked:hover, .day-schedule li.hourClosed:hover {
+    color: black;
+    cursor: auto;
+}
+
+#submitBooking {
+    width: 260px;
+    height: 46px;
+    background-color: #3F51B5;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.3em;
+    padding-top: 20px;
+}
+
+#submitBooking:hover {
+    background-color: #283aa0;
+}
+
+.submitDisabled {
+    cursor: not-allowed !important;
+    background-color:gray !important;
+}
+
+.booking-command {
+    font-size: 1.3em;
+}
+
+.booking-info {
+    font-size: 1.3em;
+    color: gray;
+}
+
+.no-courts {
+    font-size: 1.6em;
+    font-weight: bold;
+}
+
+.resource-selection {
+    margin: 0px;
+}
+
+.resource-selection .resource-selection-item {
+    list-style-type: none;
+    width:200px;
+    height: 60px;
+    margin:5px;
+    float:left;
+    background-color: #3f51b5;
+    text-align: center;
+    cursor: pointer;
+    color:white;
+    font-weight: bold;
+    padding-top: 25px;
+}
+
+.resource-selection .resource-selection-item:hover {
+    background-color: #283aa0;
+}
+
+.booking-left {
+    float:left;
+    width:300px;
+}
+
+.booking-right {
+    float:left;
+}
+
+.reservedHours{
+    font-size:1.3em;
+    font-weight: bold;
+    margin-top:30px;
+    margin-bottom: 30px;
+}
+
+#errorBooking {
+    margin-bottom:20px;
+    background-color: #F44336;
+    padding: 10px;
+    width: 220px;
+    color: white;
+    display:none;
+}
+
+

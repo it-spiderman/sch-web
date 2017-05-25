@@ -51,21 +51,24 @@ class ScheduleView {
         return $sHTML;
     }
     
-    private function getSidebar() {
+    private function getSidebar( $sPageClass = '' ) {
 	$aUser = $this->mModel->getOdooUser();
+	$sHTML = "<div class='sidebar'><div class='content'>";
+	$sHTML .= "<ul class='main-menu'>";
+	$sHTML .= "<li id='menu-balance'><p>Membership overview</p></li>";
+	$sHTML .= "<li id='menu-booking'><p>Make a booking</p></li>";
+	$sHTML .= "</ul>";
 	
-	$sHTML = "<div class='sidebar'><div class='content'><div class='membership-info'>"
-		. "<span class='label label-info'>Current status:&nbsp<b>";
-	$sHTML .= ucfirst ( $aUser['status'] ) . "</b></span>";
+	$sHTML .= "<ul class='status-menu'>";
+	$sHTML .= "<li>Membership status:&nbsp<b>" . ucFirst( $aUser['status'] ) . "</b></li>";
 	if( $aUser['status'] == 'paid' ) {
-	    $sHTML .= "<span class='label'>Valid until:&nbsp" . $aUser['end'] . "</span>";
+	    $sHTML .= "<li>Valid until:&nbsp" . $aUser['end'] . "</li>";
 	}
-	$sHTML .= "</div>";
 	if( $aUser['credit'] != 0 ) {
-	    $sHTML .= "<a href='index.php?title=balance'><span class='label label-success credit'>Credit balance: &nbsp"
-		     . $this->mModel->toCurrency( $aUser['credit'] ) . "</span></a>";
+	    $sHTML .= "<li id='credit-status'>Credit:&nbsp<b>"
+		     . $this->mModel->toCurrency( $aUser['credit'] ) . "</b></li>";
 	}
-	$sHTML .= "<a href='index.php?title=booking'><span class='label label-success'>Make a booking!</span></a>";
+	
 	$sHTML .= "</div></div>";
 	return $sHTML;
     }
@@ -103,7 +106,7 @@ class ScheduleView {
 	
 	$sHTML .= "</div></div>";
 	
-	
+	$sHTML .= $this->getFooter();
 	return $sHTML;
     }
     
@@ -112,53 +115,88 @@ class ScheduleView {
 	$sHTML .= $this->getSidebar();
 
 	$sHTML .= "<div class='contentField'><div class='content'>";
-	$sHTML .= "<p>Book an appointment</p>";
+	$sHTML .= "<p class='bookingTitle'>Booking</p>";
 	if( empty( $aParams ) ) {
 	    $sHTML .= $this->getDateForm();
 	} else if( isset( $aParams['date'] ) && !isset( $aParams['resource'] ) ) {
 	    $sHTML .= $this->getResourceForm( $aParams['date'] );
-	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] ) ) {
+	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] )
+		&& !isset( $aParams['from'] ) && !isset( $aParams['to'] )) {
 	    $sHTML .= $this->getFinalForm( $aParams );
+	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] ) 
+		&& isset( $aParams['from'] ) && isset( $aParams['to'] ) ) {
+	    $vBookingDetails = $this->mController->makeBooking( $aParams);
+
+	    if( !$vBookingDetails ) {
+		return "<div id='bookingSubmitError'></div>";
+	    }
+	    $this->mModel->setBookingDetails( $vBookingDetails );
+	    return "<div id='bookingSubmitSuccess'></div>";
+	} else if( isset( $aParams['error'] ) ) {
+	    $sHTML .= "<p>Theres been an error!</p>";
+	} else if( isset( $aParams['success'] ) ) {
+	    $sHTML .= var_export($this->mModel->getBookingDetails(), true);
 	}
 	
 	$sHTML .= "</div></div>";
 	
-	
+	$sHTML .= $this->getFooter();
 	return $sHTML;
     }
     
     protected function getDateForm() {
-	$sHTML = "<p id='booking-title'>Select the date:<p>";
-	$sHTML .= "<form method='GET' action='index.php'>";
-	$sHTML .= "<input name='title' value='booking' type='hidden'>";
-	$sHTML .= "<input name='date' type='date'/>";
-	$sHTML .= "<input type='submit' value='Next step'><form>";
+	$sHTML = "<p class='booking-command'>Select the date:<p>";
+	$sHTML .= "<input name='date' type='date' id='booking-date'/>";
 	return $sHTML;
     }
     
     protected function getResourceForm( $sDate ) {
-	$sHTML = "<p id='booking-title'>Select the court:<p>";
-	$sHTML .= "<p id='booking-date'>Date: " . $sDate . "</p>";
+	$sHTML = "<p class='booking-info'>Date:&nbsp" . $sDate . "</p>";
+	$sHTML .= "<p class='booking-command'>Select the court:<p>";
 	$aCourts = $this->mController->getResourcesForDate( $sDate );
 	if( empty( $aCourts ) ) {
 	    $sHTML .= "<p id='no-courts'>No courts are available<p>";
 	    return $sHTML;
 	}
+	$sHTML .= "<ul class='resource-selection'>";
 	foreach( $aCourts as $aCourt ) {
-	    $sHTML .= "<a href='" . $this->mModel->getBaseUrl()
-		    . "?title=booking&date=" . $sDate . "&resource=". $aCourt['id'] . "'>" 
-		    . $aCourt['name'] . "</a>";
+	    $sHTML .= "<li class='resource-selection-item' data-resource='" . $aCourt['id'] . "'>" . $aCourt['name'] . "</li>";
 	}
+	$sHTML .= "</ul>";
 	return $sHTML;
     }
     
     protected function getFinalForm( $aParams ) {
-	$sHTML = "<p id='booking-title'>Pick the time:<p>";
-	$sHTML .= "<p id='booking-date'>Date: " . $aParams['date'] . "</p>";
+	$sHTML = "<div class='booking-left'>";
+	$sHTML .= "<p class='booking-info'>Date:&nbsp" . $aParams['date'] . "</p>";
+	$sHTML .= "<p class='booking-info'>Court:&nbsp" . $this->mController->getName( $aParams['resource'] ) . "</p>";
+	$sHTML .= "<div class='reservedHours'>Please select the time</div>";
+	$sHTML .= "<div id='errorBooking'></div>";
+	$sHTML .= "<div id='submitBooking'>Book!</div>";
+	$sHTML .= "</div><div class='booking-right'>";
+	$aHours = $this->mController->getWorkhours( $aParams );
+	if( empty( $aHours ) ) {
+	    $sHTML .= "<p class='booking-info'>There are no available booking for this date</p></div><div class='clear'></div>";
+	    
+	    return $sHTML;
+	}
+	
+	$sHTML .= "<ul class='day-schedule'>";
+	foreach( $aHours as $aHour ) {
+	    $sHTML .= "<li class='hour hour" . $aHour['reason'] . "' "
+		    . "data-start='" . $aHour['start_f'] . "' data-end='" . $aHour['end_f'] . "' "
+		    . "data-available='" . $aHour['available'] . "'>"
+		    . "<p>" . $aHour['start'] . " - " . $aHour['end'] . "</p><span>" . $aHour['reason'] . "</span>"
+		    . "<div class='clear'></div></li>";
+	}
+	$sHTML .= "</ul>";
+	$sHTML .= "</div><div class='clear'></div>";
 	return $sHTML;
     }
     
-    
+    protected function getFooter() {
+	return "<div class='clear'></div><div class='footer'></div>";
+    }
     
     public function error() {
 	return "<p class='error'>Error has occured, please try later</p>";

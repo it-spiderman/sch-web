@@ -13,6 +13,7 @@ class ScheduleModel {
     private $aOdooUser;
     private $aOdooProfile;
     private $sBaseUrl = "/Scheduling/index.php";
+    private $aBookingDetail = array();
 
     public function __construct() {
 	
@@ -36,6 +37,22 @@ class ScheduleModel {
 	$this->aOdooUser = $aUser;
 	$_SESSION['odooUser'] = $aUser;
     }
+    
+    public function getBookingDetails() { 
+	if( $this->aBookingDetail ) {
+	    return $this->aBookingDetail;
+	}
+	if( empty( $this->aBookingDetail ) && $_SESSION['bookingDetails'] ) {
+	    $this->aBookingDetail = $_SESSION['bookingDetails'];
+	    return $this->aBookingDetail;
+	}
+	return false;
+    }
+    
+    public function setBookingDetails( $aDetails ) {
+	$this->aBookingDetail = $aDetails;
+	$_SESSION['bookingDetails'] = $aDetails;
+    }
 
     public function executeOdooCommand($sModel, $sAction, $aFilters, $aParams = array()) {
 	if (!$this->getOdooUID()) {
@@ -48,6 +65,10 @@ class ScheduleModel {
 			    $this->sOdooDb, $this->iOdooUID, $this->sOdooPassword, $sModel, $sAction, $aFilters, $aParams
 	    );
 	    if(array_key_exists( 'faultKey', $vRes) ) {
+		return false;
+	    }
+	    
+	    if(array_key_exists( 'error', $vRes) ) {
 		return false;
 	    }
 
