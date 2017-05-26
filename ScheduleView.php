@@ -195,6 +195,7 @@ class ScheduleView {
     }
     
     protected function getFooter() {
+	return '';
 	return "<div class='clear'></div><div class='footer'></div>";
     }
     

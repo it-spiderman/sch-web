@@ -38,6 +38,19 @@ class ScheduleModel {
 	$_SESSION['odooUser'] = $aUser;
     }
     
+    public function updateInfo( $aInfo ) {
+	$oUser = $this->getOdooUser();
+	if( $oUser ) {
+	    $this->aOdooUser['credit'] = $aInfo['credit'];
+	    $this->aOdooUser['status'] = $aInfo['status'];
+	    $this->aOdooUser['start'] = $aInfo['start'];
+	    $this->aOdooUser['end'] = $aInfo['end'];
+	    $this->setOdooUser($this->aOdooUser);
+	    return true;
+	}
+	return false;
+    }
+    
     public function getBookingDetails() { 
 	if( $this->aBookingDetail ) {
 	    return $this->aBookingDetail;
@@ -64,13 +77,13 @@ class ScheduleModel {
 	    $vRes = $oModels->execute_kw(
 			    $this->sOdooDb, $this->iOdooUID, $this->sOdooPassword, $sModel, $sAction, $aFilters, $aParams
 	    );
-	    if(array_key_exists( 'faultKey', $vRes) ) {
+	    if( array_key_exists( 'faultKey', $vRes) ) {
 		return false;
 	    }
 	    
-	    if(array_key_exists( 'error', $vRes) ) {
+	    /*if( array_key_exists( 'error', $vRes) ) {
 		return false;
-	    }
+	    }*/
 
 	    return $vRes;
 	} catch( Exception $e) {

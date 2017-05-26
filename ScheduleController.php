@@ -111,8 +111,8 @@ class ScheduleController {
 	}
 
 	foreach( $aBookings as $aBooking ) {
-	    if( ($fStart > $aBooking['from'] && $fStart < $aBooking['to'] ) ||
-		    ($fEnd < $aBooking['to'] && $fEnd > $aBooking['from'] )){
+	    if( ($fStart >= $aBooking['from'] && $fStart < $aBooking['to'] ) ||
+		    ($fEnd <= $aBooking['to'] && $fEnd > $aBooking['from'] )){
 		$bAvaiable = false;
 	    }
 	}
@@ -136,8 +136,21 @@ class ScheduleController {
 	if( !$vRes ) {
 	    return false;
 	}
-	
+	$this->updateInfo( $aOdooUser['id'] );
+	$this->getProfile();
 	return $vRes;
+    }
+    
+    public function updateInfo( $iUserId ) {
+	$vRes = $this->mModel->executeOdooCommand( 'res.partner', 'get_info',
+		array( array( 'user' => $iUserId ) ) );
+
+	if( !$vRes ) {
+	    return false;
+	}
+	return $this->mModel->updateInfo( $vRes );
+
+	return false;
     }
     
     public function hourize( $fTime ) {
