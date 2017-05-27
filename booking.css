@@ -119,6 +119,11 @@
     margin-bottom: 30px;
 }
 
+.price {
+    font-weight: normal !important;
+    font-size: 0.8em;
+}
+
 #errorBooking {
     margin-bottom:20px;
     background-color: #F44336;
@@ -128,4 +133,24 @@
     display:none;
 }
 
+.booking-success-title{
+    padding: 20px;
+    background-color: #84c34a;
+    width: 400px;
+    font-size: 1.4em;
+    color: white;
+}
 
+.booking-success-info{
+    padding: 5px;
+    padding-left: 20px;
+    font-size: 1.2em;
+}
+
+.booking-error{
+    padding: 20px;
+    background-color: #ed6b5a;
+    width: 400px;
+    font-size: 1.4em;
+    color: white;
+}

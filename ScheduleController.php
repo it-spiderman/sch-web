@@ -35,15 +35,18 @@ class ScheduleController {
     public function getProfile() {
 	$aOdooUser = $this->mModel->getOdooUser();
 	if( !$aOdooUser ) {
+	    
 	    return false;
 	}
+
 	$vRes = $this->mModel->executeOdooCommand( 'res.partner', 'get_profile_info',
 		array( array( 'user_id' => $aOdooUser['id'] ) ) );
 
 	if( $vRes ) {
 	    $this->mModel->setOdooProfile( $vRes );
-	    return true;
+	    return $this->mModel->getOdooProfile();
 	}
+
 	return false;
 	
     }
@@ -70,8 +73,9 @@ class ScheduleController {
 	if( !isset( $aParams['date'] ) || !isset( $aParams['resource'] ) ) {
 	    return [];
 	}
+	$aOdooUser = $this->mModel->getOdooUser();
 	$vRes = $this->mModel->executeOdooCommand( 'membership_lite.resource', 'get_hours',
-		array( array( 'date' => $aParams['date'], 'resource' => $aParams['resource'] ) ) );
+		array( array( 'user' => $aOdooUser['id'], 'date' => $aParams['date'], 'resource' => $aParams['resource'] ) ) );
 	
 	if( !$vRes ) {
 	    return false;
@@ -92,7 +96,9 @@ class ScheduleController {
 		'start_f' => $fStart,
 		'end' => $this->hourize( $fEnd ),
 		'end_f' => $fEnd,
-		'available' => $bAvailable, 'reason' => $sNonAvailableReason 
+		'available' => $bAvailable, 'reason' => $sNonAvailableReason ,
+		'price_message' => $vRes['price_message'],
+		'price' => $vRes['price']
 	    );
 	}
 	return $aHours;
@@ -123,6 +129,16 @@ class ScheduleController {
 	}
 	
 	return $bAvaiable;
+    }
+    
+    public function getDisabledDates() {
+	$vRes = $this->mModel->executeOdooCommand( 'membership_lite.resource', 'get_disabled_dates',
+		array( array() ) );
+
+	if( !$vRes ) {
+	    return false;
+	}
+	return $vRes;
     }
     
     public function makeBooking( $aParams ) {

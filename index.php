@@ -7,6 +7,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <!-- Bootstrap -->
         <link href="plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+	<link href="plugins/datepicker/bootstrap-datepicker.standalone.min.css" rel="stylesheet" media="screen">
         <link href="style.css" type="text/css" rel="stylesheet"/>
 	<link href="booking.css" type="text/css" rel="stylesheet"/>
     </head>
@@ -46,6 +47,8 @@
 	    echo $oView->getLoginForm();
 	    die();
 	}
+	
+	$oController->updateInfo( $oModel->getOdooUser()['id'] );
 
 	if (isset($_GET['title'])) {
 	    $sTitle = $_GET['title'];
@@ -75,6 +78,7 @@
 		    echo $oView->getBalance();
 		    break;
 		default:
+		    echo $oView->getBalance();
 		    die();
 	    }
 	} else {
@@ -84,6 +88,7 @@
 	?>
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
+	<script src="plugins/datepicker/bootstrap-datepicker.min.js"></script>
 	<script src="behaviour.js"></script>
     </body>
 </html>

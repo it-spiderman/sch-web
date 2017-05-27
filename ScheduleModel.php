@@ -77,7 +77,7 @@ class ScheduleModel {
 	    $vRes = $oModels->execute_kw(
 			    $this->sOdooDb, $this->iOdooUID, $this->sOdooPassword, $sModel, $sAction, $aFilters, $aParams
 	    );
-	    if( array_key_exists( 'faultKey', $vRes) ) {
+	    if( array_key_exists( 'faultCode', $vRes) ) {
 		return false;
 	    }
 	    
@@ -139,7 +139,7 @@ class ScheduleModel {
     public function getOdooProfile() {
 	if( $this->aOdooProfile ) {
 	    return $this->aOdooProfile;
-	} 
+	}
 	return false;
     }
     

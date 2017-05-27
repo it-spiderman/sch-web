@@ -77,9 +77,15 @@ class ScheduleView {
 	$sHTML = $this->getHeader();
 	$sHTML .= $this->getSidebar();
 	
-	$aProfile = $this->mModel->getOdooProfile();
+	$aProfile = $this->mController->getProfile();
+
 	$sHTML .= "<div class='contentField'><div class='content'>";
-	$sHTML .= "<div class='memberships'><h2>Memberships</h2>";
+	$sHTML .= "<ul class='nav nav-tabs' role='tablist'>"
+		."<li '><a href='#info' data-toggle='tab'>Personal information</a></li>"
+	    ."<li ><a href='#credit' data-toggle='tab'>Credit overview</a></li>"
+	    ."<li class='active'><a href='#membership' data-toggle='tab'>Membership overview</a></li></ul>";
+	$sHTML .= "<div class='tab-content'>";
+	$sHTML .= "<div id='membership' role=tabpanel class='memberships tab-pane active'><h2>Memberships</h2>";
 	$sHTML .= "<table class='table table-hover table-bordered'>"
 		. "<tr><th>Date</th><th>Name</th><th>Price</th><th>Start</th><th>End</th></tr>";
 	foreach( $aProfile['m_lines'] as $vValue ) {
@@ -91,7 +97,7 @@ class ScheduleView {
 	}
 	$sHTML .= "</table></div>";
 	
-	$sHTML .= "<div class='credit_lines'><h2>Credit history</h2>";
+	$sHTML .= "<div id='credit' role=tabpanel class='tab-pane credit_lines'><h2>Credit history</h2>";
 	$sHTML .= "<table class='table table-hover table-bordered'>"
 		. "<tr><th>Date</th><th>Amount</th><th>Method</th><th>Direction</th>"
 		. "<th>Transfer ID</th><th>Note</th></tr>";
@@ -103,6 +109,25 @@ class ScheduleView {
 	    $sHTML .= "</tr>";
 	}
 	$sHTML .= "</table></div>";
+
+	/*
+	$sHTML .= "<ul class='nav nav-tabs' role='tablist'>"
+	    ."<li class='active'><a href='#credit' data-toggle='tab'>Home</a></li>"
+	    ."<li><a href='#membership' data-toggle='tab'>Memberships</a></li></ul>";
+	
+	
+	$sHTML .= "<div id='credit' class='credit_lines'><h2>Credit history</h2>";
+	$sHTML .= "<table class='table table-hover table-bordered'>"
+		. "<tr><th>Date</th><th>Amount</th><th>Method</th><th>Direction</th>"
+		. "<th>Transfer ID</th><th>Note</th></tr>";
+	foreach( $aProfile['c_lines'] as $vValue ) {
+	    $sHTML .= "<tr>";
+	    foreach( $vValue as $sField ) {
+		$sHTML .= "<td>" . $sField . "</td>";
+	    }
+	    $sHTML .= "</tr>";
+	}
+	$sHTML .= "</table></div>";*/
 	
 	$sHTML .= "</div></div>";
 	
@@ -117,7 +142,11 @@ class ScheduleView {
 	$sHTML .= "<div class='contentField'><div class='content'>";
 	$sHTML .= "<p class='bookingTitle'>Booking</p>";
 	if( empty( $aParams ) ) {
-	    $sHTML .= $this->getDateForm();
+	    $aDisabledDates = $this->mController->getDisabledDates();
+	    if( !$aDisabledDates ) {
+		$this->showError();
+	    }
+	    $sHTML .= $this->getDateForm( $aDisabledDates );
 	} else if( isset( $aParams['date'] ) && !isset( $aParams['resource'] ) ) {
 	    $sHTML .= $this->getResourceForm( $aParams['date'] );
 	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] )
@@ -127,15 +156,21 @@ class ScheduleView {
 		&& isset( $aParams['from'] ) && isset( $aParams['to'] ) ) {
 	    $vBookingDetails = $this->mController->makeBooking( $aParams);
 
-	    if( !$vBookingDetails ) {
+	    if( !$vBookingDetails || array_key_exists('error', $vBookingDetails) ) {
 		return "<div id='bookingSubmitError'></div>";
 	    }
 	    $this->mModel->setBookingDetails( $vBookingDetails );
 	    return "<div id='bookingSubmitSuccess'></div>";
 	} else if( isset( $aParams['error'] ) ) {
-	    $sHTML .= "<p>Theres been an error!</p>";
+	    $sHTML .= "<p class='booking-error'>Booking could not be made!</p>";
 	} else if( isset( $aParams['success'] ) ) {
-	    $sHTML .= var_export($this->mModel->getBookingDetails(), true);
+	    $aBookingDetails = $this->mModel->getBookingDetails();
+	    $sHTML .= "<p class='booking-success-title'>Booking successful!</p>";
+	    $sHTML .= "<p class='booking-success-info'>Date: " . $aBookingDetails['date'] . "</p>";
+	    $sHTML .= "<p class='booking-success-info'>Time: " . $aBookingDetails['from'] 
+		    . " - " . $aBookingDetails['to'] . "</p>";
+	    $sHTML .= "<p class='booking-success-info'>Court: " . $aBookingDetails['resource'] . "</p>";
+	    
 	}
 	
 	$sHTML .= "</div></div>";
@@ -144,9 +179,13 @@ class ScheduleView {
 	return $sHTML;
     }
     
-    protected function getDateForm() {
+    protected function getDateForm( $aDisabled ) {
 	$sHTML = "<p class='booking-command'>Select the date:<p>";
-	$sHTML .= "<input name='date' type='date' id='booking-date'/>";
+	$vDisabled = json_encode($aDisabled['disabled']);
+	$sHTML .= "<div id='booking-date' data-date-start-date='" . $aDisabled['start_date'] . "'"
+		. "data-date-end-date='" . $aDisabled['end_date'] . "' "
+		. " data-date-dates-disabled=" . $vDisabled . "></div>";
+
 	return $sHTML;
     }
     
@@ -171,6 +210,7 @@ class ScheduleView {
 	$sHTML .= "<p class='booking-info'>Date:&nbsp" . $aParams['date'] . "</p>";
 	$sHTML .= "<p class='booking-info'>Court:&nbsp" . $this->mController->getName( $aParams['resource'] ) . "</p>";
 	$sHTML .= "<div class='reservedHours'>Please select the time</div>";
+	$sHTML .= "<div id='reservedPrice'></div>";
 	$sHTML .= "<div id='errorBooking'></div>";
 	$sHTML .= "<div id='submitBooking'>Book!</div>";
 	$sHTML .= "</div><div class='booking-right'>";
@@ -185,9 +225,14 @@ class ScheduleView {
 	foreach( $aHours as $aHour ) {
 	    $sHTML .= "<li class='hour hour" . $aHour['reason'] . "' "
 		    . "data-start='" . $aHour['start_f'] . "' data-end='" . $aHour['end_f'] . "' "
-		    . "data-available='" . $aHour['available'] . "'>"
-		    . "<p>" . $aHour['start'] . " - " . $aHour['end'] . "</p><span>" . $aHour['reason'] . "</span>"
-		    . "<div class='clear'></div></li>";
+		    . "data-available='" . $aHour['available'] . "' data-price='" . $aHour['price'] . "'>"
+		    . "<p>" . $aHour['start'] . " - " . $aHour['end'] . "</p>";
+	    if( $aHour['available'] == 1 ) {
+		$sHTML .= "<span class='price'>" . $aHour['price_message'] . "</span>";
+	    } else {
+		$sHTML .= "<span>" . $aHour['reason'] . "</span>";
+	    }
+	    $sHTML .= "<div class='clear'></div></li>";
 	}
 	$sHTML .= "</ul>";
 	$sHTML .= "</div><div class='clear'></div>";
