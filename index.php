@@ -8,6 +8,7 @@
         <!-- Bootstrap -->
         <link href="plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 	<link href="plugins/datepicker/bootstrap-datepicker.standalone.min.css" rel="stylesheet" media="screen">
+	<link rel="stylesheet" type="text/css" href="plugins/DataTables/datatables.min.css">
         <link href="style.css" type="text/css" rel="stylesheet"/>
 	<link href="booking.css" type="text/css" rel="stylesheet"/>
     </head>
@@ -77,6 +78,9 @@
 		case 'balance':
 		    echo $oView->getBalance();
 		    break;
+		case 'buy_credit':
+		    echo $oView->buyCredit();
+		    break;
 		default:
 		    echo $oView->getBalance();
 		    die();
@@ -89,6 +93,7 @@
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script src="plugins/datepicker/bootstrap-datepicker.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="plugins/DataTables/datatables.min.js"></script>
 	<script src="behaviour.js"></script>
     </body>
 </html>

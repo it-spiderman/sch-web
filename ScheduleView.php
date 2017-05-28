@@ -73,65 +73,106 @@ class ScheduleView {
 	return $sHTML;
     }
     
+    public function buyCredit() {
+	$sHTML = "<script src='https://www.paypalobjects.com/api/checkout.js'></script>";
+	$sHTML .= $this->getHeader();
+	$sHTML .= $this->getSidebar();
+	
+	$aOdooUser = $this->mModel->getOdooUser();
+	
+	$sHTML .= "<div class='contentField'><div class='content'>";
+	$sHTML .= "<h2>Buy credit over PayPal</h2>";
+	$sHTML .= "<div id='paymentContainer'>";
+	$sHTML .= "<p class='credit-info'>Your current credit balance: " . $this->mModel->toCurrency($aOdooUser['credit']) . "</p>";
+	$sHTML .= "<p class='label'>1. Enter the desired amount:</p></br>";
+	$sHTML .= "<input type='number' min='0' step='0.01' id='paypal-credit-amount'>";
+	$sHTML .= "<p class='label paypal-button-label'>2. Click on the button below to make the transaction:</p></br>";
+	$sHTML .= "<div id='paypal-button-container'></div>";
+	$sHTML .= "</div>";
+	$sHTML .= "<div id='payment-result'></div>";
+	$sHTML .= "<div id='payment-details'></div>";
+	$sHTML .= "</div></div>";
+
+	return $sHTML;
+    }
+    
     public function getBalance() {
 	$sHTML = $this->getHeader();
 	$sHTML .= $this->getSidebar();
 	
+	$aOdooUser = $this->mModel->getOdooUser();
 	$aProfile = $this->mController->getProfile();
 
 	$sHTML .= "<div class='contentField'><div class='content'>";
+	
+	/*NAVIGATION*/
 	$sHTML .= "<ul class='nav nav-tabs' role='tablist'>"
-		."<li '><a href='#info' data-toggle='tab'>Personal information</a></li>"
+		."<li class='active'><a href='#info' data-toggle='tab'>Personal information</a></li>"
 	    ."<li ><a href='#credit' data-toggle='tab'>Credit overview</a></li>"
-	    ."<li class='active'><a href='#membership' data-toggle='tab'>Membership overview</a></li></ul>";
+		."<li ><a href='#bookings' data-toggle='tab'>Bookings</a></li>"
+	    ."<li ><a href='#membership' data-toggle='tab'>Membership overview</a></li></ul>";
 	$sHTML .= "<div class='tab-content'>";
-	$sHTML .= "<div id='membership' role=tabpanel class='memberships tab-pane active'><h2>Memberships</h2>";
-	$sHTML .= "<table class='table table-hover table-bordered'>"
-		. "<tr><th>Date</th><th>Name</th><th>Price</th><th>Start</th><th>End</th></tr>";
+	/*Personal info*/
+	$sHTML .= "<div id='info' role=tabpanel class='memberships tab-pane active'><h2>Personal information</h2>";
+	$sHTML .= "<table class='table'><tr><td>Name</td><td>" . $aOdooUser['name'] . "</td></tr>";
+	$sHTML .= "<tr><td>Telephone numbers</td><td>" . $aOdooUser['phone'] . "</td></tr>";
+	$sHTML .= "<tr><td>Address</td><td>" . $aOdooUser['address'] . "</td></tr>";
+	$sHTML .= "<tr><td>Email</td><td>" . $aOdooUser['email'] . "</td></tr>";
+	$sHTML .= "</table>";
+	$sHTML .= "</div>";
+	/*MEMBERSHIP*/
+	$sHTML .= "<div id='membership' role=tabpanel class='memberships tab-pane '><h2>Memberships</h2>";
+	$sHTML .= "<p id='membership-membership-status'>Current membership status:&nbsp<b>"
+		     .ucFirst( $aOdooUser['status'] ) . "</b></p>";
+	$sHTML .= "<table id='membership-table' class='table'><thead>"
+		. "<tr><th>Name</th><th>Date of purchase</th><th>Price</th><th>Start date</th><th>End date</th></tr></thead><tbody>";
 	foreach( $aProfile['m_lines'] as $vValue ) {
-	    $sHTML .= "<tr>";
-	    foreach( $vValue as $sField ) {
+	    $aFormattedLine = $this->mController->formatMembershipLine( $vValue );
+	    $sHTML .= "<tr class='" . $aFormattedLine['classes'] . "'>";
+	    foreach( $aFormattedLine['lines'] as $sField ) {
 		$sHTML .= "<td>" . $sField . "</td>";
 	    }
 	    $sHTML .= "</tr>";
 	}
-	$sHTML .= "</table></div>";
+	$sHTML .= "</tbody></table></div>";
 	
-	$sHTML .= "<div id='credit' role=tabpanel class='tab-pane credit_lines'><h2>Credit history</h2>";
-	$sHTML .= "<table class='table table-hover table-bordered'>"
-		. "<tr><th>Date</th><th>Amount</th><th>Method</th><th>Direction</th>"
-		. "<th>Transfer ID</th><th>Note</th></tr>";
+	/*CREDIT*/
+	$sHTML .= "<div id='credit' role=tabpanel class='tab-pane'><h2>Credit history</h2>";
+	$sHTML .= "<p id='credit-credit-status'>Credit status:&nbsp<b>"
+		     . $this->mModel->toCurrency( $aOdooUser['credit'] ) . "</b></p>";
+	$sHTML .= "<div id='credit-buy-credit'>BUY CREDIT over PayPal</div>";
+	$sHTML .= "<table id='credit-table' class='table table-inverse info-table'><thead>"
+		. "<tr><th>Date</th><th>Description</th><th>Amount</th><th>Payment method</th>"
+		. "</tr></thead><tbody>";
 	foreach( $aProfile['c_lines'] as $vValue ) {
-	    $sHTML .= "<tr>";
-	    foreach( $vValue as $sField ) {
-		$sHTML .= "<td>" . $sField . "</td>";
-	    }
-	    $sHTML .= "</tr>";
-	}
-	$sHTML .= "</table></div>";
+	    $aFormattedLine = $this->mController->formatCreditLine( $vValue );
 
-	/*
-	$sHTML .= "<ul class='nav nav-tabs' role='tablist'>"
-	    ."<li class='active'><a href='#credit' data-toggle='tab'>Home</a></li>"
-	    ."<li><a href='#membership' data-toggle='tab'>Memberships</a></li></ul>";
-	
-	
-	$sHTML .= "<div id='credit' class='credit_lines'><h2>Credit history</h2>";
-	$sHTML .= "<table class='table table-hover table-bordered'>"
-		. "<tr><th>Date</th><th>Amount</th><th>Method</th><th>Direction</th>"
-		. "<th>Transfer ID</th><th>Note</th></tr>";
-	foreach( $aProfile['c_lines'] as $vValue ) {
-	    $sHTML .= "<tr>";
-	    foreach( $vValue as $sField ) {
+	    $sHTML .= "<tr class='" . $aFormattedLine['classes'] . "'>";
+	    foreach( $aFormattedLine['lines'] as $sKey => $sField ) {
 		$sHTML .= "<td>" . $sField . "</td>";
 	    }
 	    $sHTML .= "</tr>";
 	}
-	$sHTML .= "</table></div>";*/
-	
+	$sHTML .= "</tbody></table></div>";
+	/*END CREDIT*/	
+	/*Bookings*/
+	$sHTML .= "<div id='bookings' role=tabpanel class='tab-pane'><h2>Bookings</h2>";
+
+	$sHTML .= "<table id='bookings-table' class='table table-inverse info-table'><thead>"
+		. "<tr><th>Date</th><th>From</th><th>To</th><th>Court</th>"
+		. "</tr></thead><tbody>";
+	foreach( $aProfile['booking_lines'] as $vValue ) {
+	    $aFormattedLine = $this->mController->formatBookingLine( $vValue );
+
+	    $sHTML .= "<tr class='" . $aFormattedLine['classes'] . "'>";
+	    foreach( $aFormattedLine['lines'] as $sKey => $sField ) {
+		$sHTML .= "<td>" . $sField . "</td>";
+	    }
+	    $sHTML .= "</tr>";
+	}
+	$sHTML .= "</tbody></table></div>";
 	$sHTML .= "</div></div>";
-	
-	$sHTML .= $this->getFooter();
+
 	return $sHTML;
     }
     
@@ -246,6 +287,22 @@ class ScheduleView {
     
     public function error() {
 	return "<p class='error'>Error has occured, please try later</p>";
+    }
+    
+    public static function getErrorPayment( $sMessage = '') {
+	$sHTML = "<div class='error-message'>There has been an error!</br>"
+		. "PayPal transaction succeeded but saving that information to your acccount failed!</br>"
+		. "Please save transaction details below and contact site administrator</br></br>";
+	if( $sMessage ){
+	    $sHTML .= $sMessage;
+	}
+	$sHTML .= "</div>";
+	return $sHTML;
+    }
+    
+    public static function getSuccessPayment() {
+	$sHTML = "<div class='success-message'>Transaction successful!</div>";
+	return $sHTML;
     }
     
 }

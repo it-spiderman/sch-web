@@ -1,4 +1,6 @@
 (function () {
+    
+    /*Datepicker init*/
     $('#booking-date').datepicker({
 	format: "yyyy-mm-dd",
 	todayHighlight: true
@@ -7,9 +9,86 @@
 	var loc = window.location.pathname + window.location.search;
 	window.location.replace(loc + "&date=" + date);
     });
+    
+    /*Data tables init */
+    $('#credit-table').DataTable();
+    $('#membership-table').DataTable();
+    $('#bookings-table').DataTable();
+    
+    /*Buy credit init*/
+    $( '#credit-buy-credit' ).click(function() {
+	window.location.replace(window.location.pathname + "?title=buy_credit" );
+    });
+    
+    /*PAYPAL*/
+    var amount = 0;
+    $('#paypal-credit-amount').change(function(e) {
+	var amount = e.currentTarget.value;
+	if(isNaN( amount ) ) {
+	    
+	    return;
+	} else {
+	    amount = parseFloat(amount);
+	    $('.paypal-button-label').show();
+	    paypal.Button.render({
+
+		env: 'sandbox', // sandbox | production
+
+		// PayPal Client IDs - replace with your own
+		// Create a PayPal app: https://developer.paypal.com/developer/applications/create
+		client: {
+		    sandbox:    'AVLQNMMwfD0mK5EVCLPWPkIRg0hD_vHoMTCEca6w8K9WupjnTZkCtMbL3xF10v23xYE8mgd4novecN_K',
+		    production: '<insert production client id>'
+		},
+
+		// Show the buyer a 'Pay Now' button in the checkout flow
+		commit: true,
+
+		// payment() is called when the button is clicked
+		payment: function(data, actions) {
+
+		    // Make a call to the REST api to create the payment
+		    return actions.payment.create({
+			transactions: [
+			    {
+				amount: { total: amount, currency: 'EUR' }
+			    }
+			]
+		    });
+		},
+
+		// onAuthorize() is called when the buyer approves the payment
+		onAuthorize: function(data, actions) {
+
+		    // Make a call to the REST api to execute the payment
+		    return actions.payment.execute().then(function(e) {
+			$('#paymentContainer').hide();
+			$('#payment-details').html("<table class='table'><tr><td>Transaction id</td><td>" + e.id  + "</td></tr>"
+				+ "<tr><td>Date</td><td>" + e.create_time + "</td></tr>"
+				+ "<tr><td>Amount</td><td>" + e.transactions[0].amount.total 
+				+ e.transactions[0].amount.currency + "</td></tr></table>");
+			$.post( "paypal.php", {'action': 'paypal', 'paypal':e})
+				.done( function( ret ) {
+				    console.log(ret);
+				$('#payment-result').html(ret);
+				
+			});
+		    });
+		}
+
+	    }, '#paypal-button-container');
+	}
+    });
+    
+    
+    
+    /*Global vars init */
     var t_start = undefined;
     var t_end = undefined;
     var t_price = 0;
+    
+    
+    
     $(".hour").click(function (caller) {
 	var target = $(caller.currentTarget);
 	if (target.hasClass('hourBooked') || target.hasClass('hourClosed'))

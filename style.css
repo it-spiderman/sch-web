@@ -10,6 +10,9 @@ body, html {
   height: 100%;
 }
 
+h2 {
+    font-size: 2em;
+}
 .login {
     width: 300px;
     height: auto;
@@ -170,4 +173,53 @@ body, html {
     background-color: #3f51b5;
     width: 100%;
     height:40px;
+}
+
+.red{
+    color:red;
+}
+
+.current{
+    background-color:#8bc34a !important;
+}
+
+#info table{
+    font-size: 1.2em;
+}
+
+#credit-buy-credit {
+    width:100px;
+    height:40px;
+    color:white;
+    background-color: #3f51b5;
+    cursor:pointer;
+    font-weight: bold;
+    margin: 10px;
+    padding: 10px;
+    padding-left:30px;
+    padding-right:30px;
+    text-align: center;
+}
+
+#credit-buy-credit:hover{
+    background-color: #3446ad;
+}
+
+.paypal-button-label {
+    display:none;
+    width:300px;
+}
+
+.success-message {
+    padding: 20px;
+    background-color: green;
+    width: 500px;
+    color: white;
+}
+
+.error-message {
+    padding: 20px;
+    background-color: red;
+    width: 500px;
+    color: white;
 }
