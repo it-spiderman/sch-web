@@ -90,6 +90,7 @@
 	}
 
 	?>
+
         <script src="http://code.jquery.com/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script src="plugins/datepicker/bootstrap-datepicker.min.js"></script>

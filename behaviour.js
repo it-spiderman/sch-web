@@ -127,6 +127,7 @@
 
 	    t_price += price;
 	});
+
 	if (t_start && t_end) {
 	    message = "Booking period: " + hourize(t_start) + " - " + hourize(t_end);
 	    $('.reservedHours').html(message);
@@ -163,8 +164,8 @@
 	var res = true;
 	$.each($(".hour"), function (index, value) {
 	    var el = $(value);
-	    /*if( el.hasClass('hourBooked') || el.hasClass('hourClosed') )
-	     return;*/
+	    if( el.hasClass('hourNew') )
+		return;
 
 	    var start = el[0].attributes['data-start'].value;
 	    var end = el[0].attributes['data-end'].value;
@@ -182,6 +183,7 @@
 		t_price += price;
 		el.addClass('hourNew');
 	    }
+	    
 
 	});
 	return res;

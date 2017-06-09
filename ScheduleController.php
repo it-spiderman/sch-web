@@ -49,7 +49,8 @@ class ScheduleController {
     }
 
     public function getResourcesForDate($sDate) {
-	$vRes = $this->mModel->executeOdooCommand('membership_lite.resource', 'get_resource_for_date', array(array('date' => $sDate)));
+	$aUser = $this->mModel->getOdooUser();
+	$vRes = $this->mModel->executeOdooCommand('membership_lite.resource', 'get_resource_for_date', array(array('date' => $sDate, 'user' => $aUser['id'] ) ) );
 
 	return $vRes;
     }
@@ -77,51 +78,21 @@ class ScheduleController {
 	$fDayStart = $vRes['day_start'];
 	$fDayEnd = $vRes['day_end'];
 	$aHours = [];
-	$fControl = $fDayStart;
-	while ($fControl < $fDayEnd) {
-	    $fStart = $fControl;
-	    $fControl += 0.5;
-	    $fEnd = $fControl;
-	    $sNonAvailableReason = '';
-	    $bAvailable = $this->isAvailable($vRes['hours'], $vRes['bookings'], $fStart, $fEnd, $sNonAvailableReason) ? 1 : 0;
+	$aRawHours = $vRes['hours'];
+	
+	foreach( $aRawHours as $aRawHour ) {
 	    $aHours[] = array(
-		'start' => $this->hourize($fStart),
-		'start_f' => $fStart,
-		'end' => $this->hourize($fEnd),
-		'end_f' => $fEnd,
-		'available' => $bAvailable, 'reason' => $sNonAvailableReason,
-		'price_message' => $vRes['price_message'],
-		'price' => $vRes['price']
+		'start' => $this->hourize( $aRawHour['from'] ),
+		'start_f' => $aRawHour['from'] ,
+		'end' => $this->hourize( $aRawHour['to']  ),
+		'end_f' => $aRawHour['to'] ,
+		'available' => $aRawHour['available'] ? 1 : 0, 'reason' => $aRawHour['reason'],
+		'price_message' => $aRawHour['price_message'],
+		'price' => $aRawHour['price']
 	    );
 	}
+
 	return $aHours;
-    }
-
-    protected function isAvailable($aHours, $aBookings, $fStart, $fEnd, &$sReason) {
-	$bAvaiable = false;
-	foreach ($aHours as $aHour) {
-	    if ($fStart >= $aHour['from'] && $fEnd <= $aHour['to']) {
-		$bAvaiable = true;
-	    }
-	}
-	if (!$bAvaiable) {
-	    $sReason = 'Closed';
-	    return false;
-	}
-
-	foreach ($aBookings as $aBooking) {
-	    if (($fStart >= $aBooking['from'] && $fStart < $aBooking['to'] ) ||
-		    ($fEnd <= $aBooking['to'] && $fEnd > $aBooking['from'] )) {
-		$bAvaiable = false;
-	    }
-	}
-
-	if (!$bAvaiable) {
-	    $sReason = 'Booked';
-	    return false;
-	}
-
-	return $bAvaiable;
     }
 
     public function getDisabledDates() {
@@ -216,7 +187,8 @@ class ScheduleController {
 	if ($aLine['is_current']) {
 	    $sClasses .= " current";
 	}
-	return ['classes' => $sClasses, 'lines' => $aRes];
+	$aIncludes = implode( '|', $aLine['includes'] );
+	return ['classes' => $sClasses, 'lines' => $aRes, 'includes' => $aIncludes ];
     }
     
     public function formatBookingLine($aLine) {

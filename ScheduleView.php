@@ -56,7 +56,10 @@ class ScheduleView {
 	$sHTML = "<div class='sidebar'><div class='content'>";
 	$sHTML .= "<ul class='main-menu'>";
 	$sHTML .= "<li id='menu-balance'><p>Membership overview</p></li>";
-	$sHTML .= "<li id='menu-booking'><p>Make a booking</p></li>";
+	if( in_array( $aUser['status'], array( 'paid', 'free' ) ) ) {
+	    $sHTML .= "<li id='menu-booking'><p>Make a booking</p></li>";
+	}
+	
 	$sHTML .= "</ul>";
 	
 	$sHTML .= "<ul class='status-menu'>";
@@ -125,12 +128,33 @@ class ScheduleView {
 	$sHTML .= "<p id='membership-membership-status'>Current membership status:&nbsp<b>"
 		     .ucFirst( $aOdooUser['status'] ) . "</b></p>";
 	$sHTML .= "<table id='membership-table' class='table'><thead>"
-		. "<tr><th>Name</th><th>Date of purchase</th><th>Price</th><th>Start date</th><th>End date</th></tr></thead><tbody>";
+		. "<tr><th>Name</th><th>Date of purchase</th><th>Price</th><th>Start date</th><th>End date</th><th></th></tr></thead><tbody>";
+	$iIdx = 0;
 	foreach( $aProfile['m_lines'] as $vValue ) {
+	    $iIdx++;
 	    $aFormattedLine = $this->mController->formatMembershipLine( $vValue );
-	    $sHTML .= "<tr class='" . $aFormattedLine['classes'] . "'>";
+	    $sHTML .= "<tr class='" . $aFormattedLine['classes'] . "' data-includes='" . $aFormattedLine['includes'] . "'>";
 	    foreach( $aFormattedLine['lines'] as $sField ) {
 		$sHTML .= "<td>" . $sField . "</td>";
+	    }
+	    if( !empty( $aFormattedLine['includes'] ) ) {
+		$sHTML .= "<td><button type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#includes" . $iIdx . "'>What's included?</button></td>";
+		$sHTML .= "<div id='includes" . $iIdx . "' class='modal fade' role='dialog'>" .
+			"<div class='modal-dialog'>" .
+			    "<div class='modal-content'>" .
+			"<div class='modal-header'>" . 
+			"<button type='button' class='close' data-dismiss='modal'>&times;</button>" .
+			"<h4 class='modal-title'>What is included in this package</h4>" . 
+			"</div>" .
+			"<div class='modal-body'>";
+		$sHTML .= "<ul>";
+		foreach( explode( "|", $aFormattedLine['includes'] ) as $sInclude ) {
+		    $sHTML .= "<li>". $sInclude . "</li>";
+		}
+		$sHTML .= "</ul>";
+		$sHTML .= "</div></div></div></div>";
+	    } else {
+		$sHTML .= "<td><button type='button' disabled class='btn btn-info btn-lg' >What's included?</button></td>";
 	    }
 	    $sHTML .= "</tr>";
 	}
@@ -222,7 +246,7 @@ class ScheduleView {
     
     protected function getDateForm( $aDisabled ) {
 	$sHTML = "<p class='booking-command'>Select the date:<p>";
-	$vDisabled = json_encode($aDisabled['disabled']);
+	$vDisabled = json_encode( $aDisabled['disabled'] );
 	$sHTML .= "<div id='booking-date' data-date-start-date='" . $aDisabled['start_date'] . "'"
 		. "data-date-end-date='" . $aDisabled['end_date'] . "' "
 		. " data-date-dates-disabled=" . $vDisabled . "></div>";
@@ -264,7 +288,7 @@ class ScheduleView {
 	
 	$sHTML .= "<ul class='day-schedule'>";
 	foreach( $aHours as $aHour ) {
-	    $sHTML .= "<li class='hour hour" . $aHour['reason'] . "' "
+	    $sHTML .= "<li class='hour hour" . ucfirst( $aHour['reason'] ) . "' "
 		    . "data-start='" . $aHour['start_f'] . "' data-end='" . $aHour['end_f'] . "' "
 		    . "data-available='" . $aHour['available'] . "' data-price='" . $aHour['price'] . "'>"
 		    . "<p>" . $aHour['start'] . " - " . $aHour['end'] . "</p>";
