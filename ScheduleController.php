@@ -75,8 +75,6 @@ class ScheduleController {
 	    return false;
 	}
 
-	$fDayStart = $vRes['day_start'];
-	$fDayEnd = $vRes['day_end'];
 	$aHours = [];
 	$aRawHours = $vRes['hours'];
 	
@@ -88,7 +86,9 @@ class ScheduleController {
 		'end_f' => $aRawHour['to'] ,
 		'available' => $aRawHour['available'] ? 1 : 0, 'reason' => $aRawHour['reason'],
 		'price_message' => $aRawHour['price_message'],
-		'price' => $aRawHour['price']
+		'price' => $aRawHour['price'],
+		'lprice' => $aRawHour['lprice'],
+		'lprice_message' => $aRawHour['lprice_message']
 	    );
 	}
 
@@ -123,9 +123,14 @@ class ScheduleController {
 	//TODO: SECURITY!
 	$aOdooUser = $this->mModel->getOdooUser();
 	$aParams['user'] = $aOdooUser['id'];
+	
+	$sFunction = 'make_booking';
+	if( $aParams['long'] == true ) {
+	    $sFunction = 'make_long_booking';
+	}
 
-	$vRes = $this->mModel->executeOdooCommand('membership_lite.booking', 'make_booking', array($aParams));
-
+	$vRes = $this->mModel->executeOdooCommand('membership_lite.booking', $sFunction, array($aParams));
+	error_log(var_export($vRes,true));
 	if (!$vRes) {
 	    return false;
 	}

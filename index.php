@@ -65,6 +65,9 @@
 		    if( isset( $_GET['from'] ) && isset( $_GET['to'] ) ) {
 			$aParams['from'] = $_GET['from'];
 			$aParams['to'] = $_GET['to'];
+			if( isset( $_GET['long'] ) && $_GET['long'] == '1' ) {
+			    $aParams['long'] = true;
+			}
 		    }
 		    if( isset( $_GET['error'] ) ) {
 			$aParams['error'] = true;

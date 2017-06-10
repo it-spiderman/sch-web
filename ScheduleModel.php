@@ -80,10 +80,6 @@ class ScheduleModel {
 	    if( array_key_exists( 'faultCode', $vRes) ) {
 		return false;
 	    }
-	    
-	    /*if( array_key_exists( 'error', $vRes) ) {
-		return false;
-	    }*/
 
 	    return $vRes;
 	} catch( Exception $e) {

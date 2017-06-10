@@ -231,16 +231,20 @@ class ScheduleView {
 	} else if( isset( $aParams['success'] ) ) {
 	    $aBookingDetails = $this->mModel->getBookingDetails();
 	    $sHTML .= "<p class='booking-success-title'>Booking successful!</p>";
-	    $sHTML .= "<p class='booking-success-info'>Date: " . $aBookingDetails['date'] . "</p>";
-	    $sHTML .= "<p class='booking-success-info'>Time: " . $aBookingDetails['from'] 
+	    if(!array_key_exists('long', $aBookingDetails)) {
+		$sHTML .= "<p class='booking-success-info'>Date: " . $aBookingDetails['date'] . "</p>";
+		$sHTML .= "<p class='booking-success-info'>Time: " . $aBookingDetails['from'] 
 		    . " - " . $aBookingDetails['to'] . "</p>";
-	    $sHTML .= "<p class='booking-success-info'>Court: " . $aBookingDetails['resource'] . "</p>";
+		$sHTML .= "<p class='booking-success-info'>Court: " . $aBookingDetails['resource'] . "</p>";
+	    }
+	    
+	    $sHTML .= "<p class='booking-success-info'>Notes: " . $aBookingDetails['note'] . "</p>";
 	    
 	}
 	
 	$sHTML .= "</div></div>";
 	
-	$sHTML .= $this->getFooter();
+	#$sHTML .= $this->getFooter();
 	return $sHTML;
     }
     
@@ -278,6 +282,7 @@ class ScheduleView {
 	$sHTML .= "<div id='reservedPrice'></div>";
 	$sHTML .= "<div id='errorBooking'></div>";
 	$sHTML .= "<div id='submitBooking'>Book!</div>";
+	$sHTML .= "<div id='submitBookingLong'></div>";
 	$sHTML .= "</div><div class='booking-right'>";
 	$aHours = $this->mController->getWorkhours( $aParams );
 	if( empty( $aHours ) ) {
@@ -290,7 +295,8 @@ class ScheduleView {
 	foreach( $aHours as $aHour ) {
 	    $sHTML .= "<li class='hour hour" . ucfirst( $aHour['reason'] ) . "' "
 		    . "data-start='" . $aHour['start_f'] . "' data-end='" . $aHour['end_f'] . "' "
-		    . "data-available='" . $aHour['available'] . "' data-price='" . $aHour['price'] . "'>"
+		    . "data-available='" . $aHour['available'] . "' data-price='" . $aHour['price'] . "' "
+		    . "data-lprice='" . $aHour['lprice'] . "' data-lprice-message='" . $aHour['lprice_message'] . "'>"
 		    . "<p>" . $aHour['start'] . " - " . $aHour['end'] . "</p>";
 	    if( $aHour['available'] == 1 ) {
 		$sHTML .= "<span class='price'>" . $aHour['price_message'] . "</span>";
@@ -304,10 +310,10 @@ class ScheduleView {
 	return $sHTML;
     }
     
-    protected function getFooter() {
+    /*protected function getFooter() {
 	return '';
 	return "<div class='clear'></div><div class='footer'></div>";
-    }
+    }*/
     
     public function error() {
 	return "<p class='error'>Error has occured, please try later</p>";

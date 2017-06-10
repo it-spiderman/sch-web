@@ -86,6 +86,7 @@
     var t_start = undefined;
     var t_end = undefined;
     var t_price = 0;
+    var t_lprice = 0;
     
     
     
@@ -109,12 +110,21 @@
 	t_start = t_end = undefined;
 	var newHours = $('.hourNew');
 	t_price = 0;
+	t_lprice = 0;
+	var t_lmessage = '';
 	$.each(newHours, function (index, value) {
 	    var period = $(value);
 
 	    var start = period[0].attributes['data-start'].value;
 	    var end = period[0].attributes['data-end'].value;
 	    var price = period[0].attributes['data-price'].value;
+	    
+	    if( period[0].attributes['data-lprice'] ) {
+		var lprice = period[0].attributes['data-lprice'].value;
+		var lprice_message = period[0].attributes['data-lprice-message'].value;
+		t_lprice += parseFloat( lprice );
+		t_lmessage = lprice_message;
+	    }
 	    start = parseFloat(start);
 	    end = parseFloat(end);
 	    price = parseFloat(price);
@@ -146,6 +156,7 @@
 	    $('#reservedPrice').html('');
 	    submitDisabled = true;
 	    $('#submitBooking').addClass('submitDisabled');
+	    hideLPriceButton();
 	}
 
 	if (t_price > 0) {
@@ -157,7 +168,23 @@
 	if (t_start && t_end) {
 	    submitDisabled = false;
 	    $('#submitBooking').removeClass('submitDisabled');
+
+	    if( t_lprice > 0 ) {
+		showLPriceButton( t_lprice, t_lmessage );
+	    }
+	} else {
+	    hideLPriceButton();
 	}
+    }
+    
+    function showLPriceButton( price, message ) {
+	$( '#submitBookingLong' ).html('<span>' + message + '</span><p>' + monetize(price) + '</p>').show();
+	submitLongDisabled = false;
+    }
+    
+    function hideLPriceButton() {
+	$( '#submitBookingLong' ).html('').hide();
+	submitLongDisabled = true;
     }
 
     function fillInBlanks() {
@@ -171,6 +198,13 @@
 	    var end = el[0].attributes['data-end'].value;
 	    var avb = el[0].attributes['data-available'].value;
 	    var price = el[0].attributes['data-price'].value;
+	    
+	    var lprice = 0;
+	    if( el[0].attributes['data-lprice'] ) {
+		lprice = el[0].attributes['data-lprice'].value;
+		
+	    }
+	    lprice = parseFloat( lprice );
 
 	    start = parseFloat(start);
 	    end = parseFloat(end);
@@ -178,10 +212,14 @@
 	    if ((t_start && t_end) && (start > t_start) && (end < t_end)) {
 		if (avb === '0') {
 		    res = false;
+		    t_lprice = 0;
 		    return res;
 		}
 		t_price += price;
 		el.addClass('hourNew');
+		if( lprice > 0 ) {
+		    t_lprice += lprice;
+		}
 	    }
 	    
 
@@ -215,6 +253,7 @@
     }
 
     var submitDisabled = true;
+    var submitLongDisabled = true;
     $('#submitBooking').addClass('submitDisabled');
     $('#submitBooking').click(function () {
 	if (submitDisabled) {
@@ -228,6 +267,21 @@
 	var path = window.location.pathname;
 	var search = window.location.search;
 	var time = "&from=" + t_start + "&to=" + t_end;
+	window.location.replace(path + search + time);
+    });
+    
+    $('#submitBookingLong').click(function () {
+	if (submitLongDisabled) {
+	    return;
+	}
+	if (!t_start || !t_end) {
+	    $('#errorBooking').html("You must select the time!").show();
+	    $('#errorBooking').delay(3000).fadeOut(500);
+	    return;
+	}
+	var path = window.location.pathname;
+	var search = window.location.search;
+	var time = "&from=" + t_start + "&to=" + t_end + "&long=1";
 	window.location.replace(path + search + time);
     });
 

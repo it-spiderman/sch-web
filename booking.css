@@ -56,10 +56,34 @@
     vertical-align: middle;
     font-size: 1.3em;
     padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 15px;
 }
 
-#submitBooking:hover {
+#submitBooking:hover, #submitBookingLong:hover{
     background-color: #283aa0;
+}
+
+#submitBookingLong {
+    display: none;
+    width: 260px;
+    height: 80px;
+    background-color: #3F51B5;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1em;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 15px;
+}
+
+#submitBookingLong p {
+    font-size: 1.2em;
 }
 
 .submitDisabled {
@@ -117,6 +141,12 @@
     font-weight: bold;
     margin-top:30px;
     margin-bottom: 30px;
+}
+
+#reservedPrice {
+    font-weight: bold;
+    color: green;
+    margin: 10px;
 }
 
 .price {
