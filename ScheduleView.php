@@ -22,7 +22,7 @@ class ScheduleView {
         
         return '<div class="container">
             <div class="login">' . $sLoginText . 
-            '<form action="/Scheduling/index.php" method="POST">
+            '<form action="' . $this->mModel->getBaseUrl() . '" method="POST">
             <input type="hidden" name="action" value="login">
             <div class="form-group">
                 <label for="mail">Email</label>
@@ -44,7 +44,7 @@ class ScheduleView {
         $sHTML = "<div class='header'><div class='content'><div class='companyLogo'><img src='images/logo.png'/></div>";
         $sHTML .= "<ul class='userPrefs'><li><p class='userName'>";
         $sHTML .= $aUser['name'];
-        $sHTML .= "</p></li><li><form action='/Scheduling/index.php' method='POST'>";
+        $sHTML .= "</p></li><li><form action='" . $this->mModel->getBaseUrl() . "' method='POST'>";
         $sHTML .= '<input type="hidden" name="action" value="logout">';
         $sHTML .= '<input type="submit" class="btn" value="Logout"></form></li></ul>';
         $sHTML .= '<div class="clear"></div></div></div>';
