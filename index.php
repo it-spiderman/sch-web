@@ -94,7 +94,7 @@
 
 	?>
 
-        <script src="http://code.jquery.com/jquery.js"></script>
+        <script src="plugins/jquery.js"></script>
         <script src="plugins/bootstrap/js/bootstrap.min.js"></script>
 	<script src="plugins/datepicker/bootstrap-datepicker.min.js"></script>
 	<script type="text/javascript" charset="utf8" src="plugins/DataTables/datatables.min.js"></script>
