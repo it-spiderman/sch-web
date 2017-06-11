@@ -5,10 +5,14 @@
  */
 class ScheduleModel {
 
-    private $sOdooUrl = 'http://localhost:8069';
+    /*private $sOdooUrl = 'http://localhost:8069';
     private $sOdooDb = 'Scheduling';
     private $sOdooUsername = "admin";
-    private $sOdooPassword = "12345";
+    private $sOdooPassword = "12345";*/
+    private $sOdooUrl = 'https://127.0.0.1:8069';
+    private $sOdooDb = 'odoo_db';
+    private $sOdooUsername = "admin";
+    private $sOdooPassword = "Luca2017";
     private $iOdooUID;
     private $aOdooUser;
     private $aOdooProfile;
