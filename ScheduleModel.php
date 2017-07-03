@@ -9,14 +9,14 @@ class ScheduleModel {
     private $sOdooDb = 'Scheduling';
     private $sOdooUsername = "admin";
     private $sOdooPassword = "12345";*/
-    private $sOdooUrl = 'https://127.0.0.1:8069';
+    private $sOdooUrl = 'http://127.0.0.1:8069';
     private $sOdooDb = 'odoo_db';
     private $sOdooUsername = "admin";
     private $sOdooPassword = "Luca2017";
     private $iOdooUID;
     private $aOdooUser;
     private $aOdooProfile;
-    private $sBaseUrl = "/Scheduling/index.php";
+    private $sBaseUrl = "/index.php";
     private $aBookingDetail = array();
 
     public function __construct() {
@@ -125,7 +125,7 @@ class ScheduleModel {
 	$this->iOdooUID = $oCommon->authenticate(
 		$this->sOdooDb, $this->sOdooUsername, $this->sOdooPassword, array()
 	);
-
+error_log(var_export($this->iOdooUID, true));
 	if ($this->iOdooUID) {
 	    return $this->iOdooUID;
 	}
