@@ -77,7 +77,7 @@ class ScheduleController {
 
 	$aHours = [];
 	$aRawHours = $vRes['hours'];
-	
+
 	foreach( $aRawHours as $aRawHour ) {
 	    $aHours[] = array(
 		'start' => $this->hourize( $aRawHour['from'] ),
@@ -123,14 +123,14 @@ class ScheduleController {
 	//TODO: SECURITY!
 	$aOdooUser = $this->mModel->getOdooUser();
 	$aParams['user'] = $aOdooUser['id'];
-	
+
 	$sFunction = 'make_booking';
 	if( $aParams['long'] == true ) {
 	    $sFunction = 'make_long_booking';
 	}
-
+  
 	$vRes = $this->mModel->executeOdooCommand('membership_lite.booking', $sFunction, array($aParams));
-	error_log(var_export($vRes,true));
+
 	if (!$vRes) {
 	    return false;
 	}
@@ -195,7 +195,7 @@ class ScheduleController {
 	$aIncludes = implode( '|', $aLine['includes'] );
 	return ['classes' => $sClasses, 'lines' => $aRes, 'includes' => $aIncludes ];
     }
-    
+
     public function formatBookingLine($aLine) {
 	$aRes = [];
 	$sClasses = '';

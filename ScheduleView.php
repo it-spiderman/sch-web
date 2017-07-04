@@ -1,43 +1,43 @@
 <?php
 
 class ScheduleView {
-    
+
     private $mModel;
     private $mController;
-    
+
     public function __construct( $oModel, $oController ) {
         $this->mModel = $oModel;
         $this->mController = $oController;
     }
- 
+
     public function getMain() {
 	return $this->getBalance();
     }
-    
+
     public function getLoginForm() {
-        $sLoginText = '<p>Log in</p>';
+        $sLoginText = '<p>Accedi</p>';
         if( $this->mController->isLoginFail() ) {
-            $sLoginText = "<p class='loginFail'>Login failed.<br/>Please check your email and password!</p>";
+            $sLoginText = "<p class='loginFail'>Si è verificato un problema!</p>";
         }
-        
+
         return '<div class="container">
-            <div class="login">' . $sLoginText . 
+            <div class="login">' . $sLoginText .
             '<form action="' . $this->mModel->getBaseUrl() . '" method="POST">
             <input type="hidden" name="action" value="login">
             <div class="form-group">
-                <label for="mail">Email</label>
+                <label for="mail">Email o nome utente</label>
                 <input type="text" class="form-control" id="mail" name="mail" placeholder="email">
-    
+
             </div>
             <div class="form-group">
                 <label for="uname">Password</label>
                 <input type="password" class="form-control" id="pass" placeholder="password" name="pass">
-    
+
             </div>
             <input type="submit" class="btn btn-success btn-lg btn-login" value="Login">
             </form></div></div>';
     }
-    
+
     private function getHeader() {
         $aUser = $this->mModel->getOdooUser();
 
@@ -46,50 +46,62 @@ class ScheduleView {
         $sHTML .= $aUser['name'];
         $sHTML .= "</p></li><li><form action='" . $this->mModel->getBaseUrl() . "' method='POST'>";
         $sHTML .= '<input type="hidden" name="action" value="logout">';
-        $sHTML .= '<input type="submit" class="btn" value="Logout"></form></li></ul>';
+        $sHTML .= '<input type="submit" class="btn" value="Esci"></form></li></ul>';
         $sHTML .= '<div class="clear"></div></div></div>';
         return $sHTML;
     }
-    
+
     private function getSidebar( $sPageClass = '' ) {
 	$aUser = $this->mModel->getOdooUser();
 	$sHTML = "<div class='sidebar'><div class='content'>";
 	$sHTML .= "<ul class='main-menu'>";
-	$sHTML .= "<li id='menu-balance'><p>Membership overview</p></li>";
+	$sHTML .= "<li id='menu-balance'><p>Panoramica</p></li>";
 	if( in_array( $aUser['status'], array( 'paid', 'free' ) ) ) {
-	    $sHTML .= "<li id='menu-booking'><p>Make a booking</p></li>";
+	    $sHTML .= "<li id='menu-booking'><p>Effettua una prenotazione</p></li>";
 	}
-	
+
 	$sHTML .= "</ul>";
-	
+
 	$sHTML .= "<ul class='status-menu'>";
-	$sHTML .= "<li>Membership status:&nbsp<b>" . ucFirst( $aUser['status'] ) . "</b></li>";
+	$sHTML .= "<li>Stato dell’utente:&nbsp<b>" . $this->translateState( $aUser['status'] ) . "</b></li>";
 	if( $aUser['status'] == 'paid' ) {
-	    $sHTML .= "<li>Valid until:&nbsp" . $aUser['end'] . "</li>";
+	    $sHTML .= "<li>Valido sino:&nbsp" . $aUser['end'] . "</li>";
 	}
 	if( $aUser['credit'] != 0 ) {
-	    $sHTML .= "<li id='credit-status'>Credit:&nbsp<b>"
+	    $sHTML .= "<li id='credit-status'>Credito:&nbsp<b>"
 		     . $this->mModel->toCurrency( $aUser['credit'] ) . "</b></li>";
 	}
-	
+
 	$sHTML .= "</div></div>";
 	return $sHTML;
     }
-    
+
+    public function translateState( $state ) {
+      if( $state == 'paid' ) {
+        return "Pagato";
+      }
+      if( $state == 'free' ) {
+        return "Gratis";
+      }
+      if( $state == 'none' ) {
+        return "Non socio";
+      }
+    }
+
     public function buyCredit() {
 	$sHTML = "<script src='https://www.paypalobjects.com/api/checkout.js'></script>";
 	$sHTML .= $this->getHeader();
 	$sHTML .= $this->getSidebar();
-	
+
 	$aOdooUser = $this->mModel->getOdooUser();
-	
+
 	$sHTML .= "<div class='contentField'><div class='content'>";
-	$sHTML .= "<h2>Buy credit over PayPal</h2>";
+	$sHTML .= "<h2>Acquista credito con PayPal</h2>";
 	$sHTML .= "<div id='paymentContainer'>";
-	$sHTML .= "<p class='credit-info'>Your current credit balance: " . $this->mModel->toCurrency($aOdooUser['credit']) . "</p>";
-	$sHTML .= "<p class='label'>1. Enter the desired amount:</p></br>";
+	$sHTML .= "<p class='credit-info'>Stato del Credito: " . $this->mModel->toCurrency($aOdooUser['credit']) . "</p>";
+	$sHTML .= "<p class='label'>1. Inserisci l’importo desiderato:</p></br>";
 	$sHTML .= "<input type='number' min='0' step='0.01' id='paypal-credit-amount'>";
-	$sHTML .= "<p class='label paypal-button-label'>2. Click on the button below to make the transaction:</p></br>";
+	$sHTML .= "<p class='label paypal-button-label'>2. Clicca sul pulsante per concludere la transazione:</p></br>";
 	$sHTML .= "<div id='paypal-button-container'></div>";
 	$sHTML .= "</div>";
 	$sHTML .= "<div id='payment-result'></div>";
@@ -98,37 +110,37 @@ class ScheduleView {
 
 	return $sHTML;
     }
-    
+
     public function getBalance() {
 	$sHTML = $this->getHeader();
 	$sHTML .= $this->getSidebar();
-	
+
 	$aOdooUser = $this->mModel->getOdooUser();
 	$aProfile = $this->mController->getProfile();
 
 	$sHTML .= "<div class='contentField'><div class='content'>";
-	
+
 	/*NAVIGATION*/
 	$sHTML .= "<ul class='nav nav-tabs' role='tablist'>"
-		."<li class='active'><a href='#info' data-toggle='tab'>Personal information</a></li>"
-	    ."<li ><a href='#credit' data-toggle='tab'>Credit overview</a></li>"
-		."<li ><a href='#bookings' data-toggle='tab'>Bookings</a></li>"
-	    ."<li ><a href='#membership' data-toggle='tab'>Membership overview</a></li></ul>";
+		."<li class='active'><a href='#info' data-toggle='tab'>Informazioni personali</a></li>"
+	    ."<li ><a href='#credit' data-toggle='tab'>Stato del Credito</a></li>"
+		."<li ><a href='#bookings' data-toggle='tab'>Prenotazioni</a></li>"
+	    ."<li ><a href='#membership' data-toggle='tab'>Panoramica</a></li></ul>";
 	$sHTML .= "<div class='tab-content'>";
 	/*Personal info*/
-	$sHTML .= "<div id='info' role=tabpanel class='memberships tab-pane active'><h2>Personal information</h2>";
-	$sHTML .= "<table class='table'><tr><td>Name</td><td>" . $aOdooUser['name'] . "</td></tr>";
-	$sHTML .= "<tr><td>Telephone numbers</td><td>" . $aOdooUser['phone'] . "</td></tr>";
-	$sHTML .= "<tr><td>Address</td><td>" . $aOdooUser['address'] . "</td></tr>";
+	$sHTML .= "<div id='info' role=tabpanel class='memberships tab-pane active'><h2>Informazioni personali</h2>";
+	$sHTML .= "<table class='table'><tr><td>Nome</td><td>" . $aOdooUser['name'] . "</td></tr>";
+	$sHTML .= "<tr><td>Numero di telefono</td><td>" . $aOdooUser['phone'] . "</td></tr>";
+	$sHTML .= "<tr><td>Indirizzo</td><td>" . $aOdooUser['address'] . "</td></tr>";
 	$sHTML .= "<tr><td>Email</td><td>" . $aOdooUser['email'] . "</td></tr>";
 	$sHTML .= "</table>";
 	$sHTML .= "</div>";
 	/*MEMBERSHIP*/
-	$sHTML .= "<div id='membership' role=tabpanel class='memberships tab-pane '><h2>Memberships</h2>";
-	$sHTML .= "<p id='membership-membership-status'>Current membership status:&nbsp<b>"
+	$sHTML .= "<div id='membership' role=tabpanel class='memberships tab-pane '><h2>Pacchetti</h2>";
+	$sHTML .= "<p id='membership-membership-status'>Stato dell’utente:&nbsp<b>"
 		     .ucFirst( $aOdooUser['status'] ) . "</b></p>";
 	$sHTML .= "<table id='membership-table' class='table'><thead>"
-		. "<tr><th>Name</th><th>Date of purchase</th><th>Price</th><th>Start date</th><th>End date</th><th></th></tr></thead><tbody>";
+		. "<tr><th>Nome</th><th>Data di acquisto</th><th>Prezzo</th><th>Inizio – Il pacchetto è valido da</th><th>Fine – Il pacchetto è valido sino a</th><th></th></tr></thead><tbody>";
 	$iIdx = 0;
 	foreach( $aProfile['m_lines'] as $vValue ) {
 	    $iIdx++;
@@ -138,13 +150,13 @@ class ScheduleView {
 		$sHTML .= "<td>" . $sField . "</td>";
 	    }
 	    if( !empty( $aFormattedLine['includes'] ) ) {
-		$sHTML .= "<td><button type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#includes" . $iIdx . "'>What's included?</button></td>";
+		$sHTML .= "<td><button type='button' class='btn btn-info btn-lg' data-toggle='modal' data-target='#includes" . $iIdx . "'>Cosa è incluso?</button></td>";
 		$sHTML .= "<div id='includes" . $iIdx . "' class='modal fade' role='dialog'>" .
 			"<div class='modal-dialog'>" .
 			    "<div class='modal-content'>" .
-			"<div class='modal-header'>" . 
+			"<div class='modal-header'>" .
 			"<button type='button' class='close' data-dismiss='modal'>&times;</button>" .
-			"<h4 class='modal-title'>What is included in this package</h4>" . 
+			"<h4 class='modal-title'>Cosa è incluso nel pacchetto?</h4>" .
 			"</div>" .
 			"<div class='modal-body'>";
 		$sHTML .= "<ul>";
@@ -154,19 +166,19 @@ class ScheduleView {
 		$sHTML .= "</ul>";
 		$sHTML .= "</div></div></div></div>";
 	    } else {
-		$sHTML .= "<td><button type='button' disabled class='btn btn-info btn-lg' >What's included?</button></td>";
+		$sHTML .= "<td><button type='button' disabled class='btn btn-info btn-lg' >Cosa è incluso?</button></td>";
 	    }
 	    $sHTML .= "</tr>";
 	}
 	$sHTML .= "</tbody></table></div>";
-	
+
 	/*CREDIT*/
-	$sHTML .= "<div id='credit' role=tabpanel class='tab-pane'><h2>Credit history</h2>";
-	$sHTML .= "<p id='credit-credit-status'>Credit status:&nbsp<b>"
+	$sHTML .= "<div id='credit' role=tabpanel class='tab-pane'><h2>Credito</h2>";
+	$sHTML .= "<p id='credit-credit-status'>Stato del Credito:&nbsp<b>"
 		     . $this->mModel->toCurrency( $aOdooUser['credit'] ) . "</b></p>";
-	$sHTML .= "<div id='credit-buy-credit'>BUY CREDIT over PayPal</div>";
+	$sHTML .= "<div id='credit-buy-credit'>Acquista credito con PayPal</div>";
 	$sHTML .= "<table id='credit-table' class='table table-inverse info-table'><thead>"
-		. "<tr><th>Date</th><th>Description</th><th>Amount</th><th>Payment method</th>"
+		. "<tr><th>Data</th><th>Descrizione</th><th>Importo</th><th>Metodo di Pagamento</th>"
 		. "</tr></thead><tbody>";
 	foreach( $aProfile['c_lines'] as $vValue ) {
 	    $aFormattedLine = $this->mController->formatCreditLine( $vValue );
@@ -178,12 +190,12 @@ class ScheduleView {
 	    $sHTML .= "</tr>";
 	}
 	$sHTML .= "</tbody></table></div>";
-	/*END CREDIT*/	
+	/*END CREDIT*/
 	/*Bookings*/
-	$sHTML .= "<div id='bookings' role=tabpanel class='tab-pane'><h2>Bookings</h2>";
+	$sHTML .= "<div id='bookings' role=tabpanel class='tab-pane'><h2>Prenotazioni</h2>";
 
 	$sHTML .= "<table id='bookings-table' class='table table-inverse info-table'><thead>"
-		. "<tr><th>Date</th><th>From</th><th>To</th><th>Court</th>"
+		. "<tr><th>Data</th><th>Da ore</th><th>A ore</th><th>Struttura</th>"
 		. "</tr></thead><tbody>";
 	foreach( $aProfile['booking_lines'] as $vValue ) {
 	    $aFormattedLine = $this->mController->formatBookingLine( $vValue );
@@ -199,13 +211,13 @@ class ScheduleView {
 
 	return $sHTML;
     }
-    
+
     public function getBooking( $aParams ) {
 	$sHTML = $this->getHeader();
 	$sHTML .= $this->getSidebar();
 
 	$sHTML .= "<div class='contentField'><div class='content'>";
-	$sHTML .= "<p class='bookingTitle'>Booking</p>";
+	$sHTML .= "<p class='bookingTitle'>Prenotazioni</p>";
 	if( empty( $aParams ) ) {
 	    $aDisabledDates = $this->mController->getDisabledDates();
 	    if( !$aDisabledDates ) {
@@ -217,7 +229,7 @@ class ScheduleView {
 	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] )
 		&& !isset( $aParams['from'] ) && !isset( $aParams['to'] )) {
 	    $sHTML .= $this->getFinalForm( $aParams );
-	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] ) 
+	} else if( isset( $aParams['date'] ) && isset( $aParams['resource'] )
 		&& isset( $aParams['from'] ) && isset( $aParams['to'] ) ) {
 	    $vBookingDetails = $this->mController->makeBooking( $aParams);
 
@@ -227,29 +239,29 @@ class ScheduleView {
 	    $this->mModel->setBookingDetails( $vBookingDetails );
 	    return "<div id='bookingSubmitSuccess'></div>";
 	} else if( isset( $aParams['error'] ) ) {
-	    $sHTML .= "<p class='booking-error'>Booking could not be made!</p>";
+	    $sHTML .= "<p class='booking-error'>La prenotazione non può essere completata!</p>";
 	} else if( isset( $aParams['success'] ) ) {
 	    $aBookingDetails = $this->mModel->getBookingDetails();
-	    $sHTML .= "<p class='booking-success-title'>Booking successful!</p>";
+	    $sHTML .= "<p class='booking-success-title'>La prenotazione è stata completata con successo!</p>";
 	    if(!array_key_exists('long', $aBookingDetails)) {
-		$sHTML .= "<p class='booking-success-info'>Date: " . $aBookingDetails['date'] . "</p>";
-		$sHTML .= "<p class='booking-success-info'>Time: " . $aBookingDetails['from'] 
+		$sHTML .= "<p class='booking-success-info'>Data: " . $aBookingDetails['date'] . "</p>";
+		$sHTML .= "<p class='booking-success-info'>Ora: " . $aBookingDetails['from']
 		    . " - " . $aBookingDetails['to'] . "</p>";
-		$sHTML .= "<p class='booking-success-info'>Court: " . $aBookingDetails['resource'] . "</p>";
+		$sHTML .= "<p class='booking-success-info'>Struttura: " . $aBookingDetails['resource'] . "</p>";
 	    }
-	    
-	    $sHTML .= "<p class='booking-success-info'>Notes: " . $aBookingDetails['note'] . "</p>";
-	    
+
+	    $sHTML .= "<p class='booking-success-info'>Appunto: " . $aBookingDetails['note'] . "</p>";
+
 	}
-	
+
 	$sHTML .= "</div></div>";
-	
+
 	#$sHTML .= $this->getFooter();
 	return $sHTML;
     }
-    
+
     protected function getDateForm( $aDisabled ) {
-	$sHTML = "<p class='booking-command'>Select the date:<p>";
+	$sHTML = "<p class='booking-command'>Seleziona una data:<p>";
 	$vDisabled = json_encode( $aDisabled['disabled'] );
 	$sHTML .= "<div id='booking-date' data-date-start-date='" . $aDisabled['start_date'] . "'"
 		. "data-date-end-date='" . $aDisabled['end_date'] . "' "
@@ -257,10 +269,10 @@ class ScheduleView {
 
 	return $sHTML;
     }
-    
+
     protected function getResourceForm( $sDate ) {
 	$sHTML = "<p class='booking-info'>Date:&nbsp" . $sDate . "</p>";
-	$sHTML .= "<p class='booking-command'>Select the court:<p>";
+	$sHTML .= "<p class='booking-command'>Seleziona una struttura:<p>";
 	$aCourts = $this->mController->getResourcesForDate( $sDate );
 	if( empty( $aCourts ) ) {
 	    $sHTML .= "<p id='no-courts'>No courts are available<p>";
@@ -273,24 +285,24 @@ class ScheduleView {
 	$sHTML .= "</ul>";
 	return $sHTML;
     }
-    
+
     protected function getFinalForm( $aParams ) {
 	$sHTML = "<div class='booking-left'>";
-	$sHTML .= "<p class='booking-info'>Date:&nbsp" . $aParams['date'] . "</p>";
-	$sHTML .= "<p class='booking-info'>Court:&nbsp" . $this->mController->getName( $aParams['resource'] ) . "</p>";
-	$sHTML .= "<div class='reservedHours'>Please select the time</div>";
+	$sHTML .= "<p class='booking-info'>Data:&nbsp" . $aParams['date'] . "</p>";
+	$sHTML .= "<p class='booking-info'>Struttura:&nbsp" . $this->mController->getName( $aParams['resource'] ) . "</p>";
+	$sHTML .= "<div class='reservedHours'>Seleziona l’orario</div>";
 	$sHTML .= "<div id='reservedPrice'></div>";
 	$sHTML .= "<div id='errorBooking'></div>";
-	$sHTML .= "<div id='submitBooking'>Book!</div>";
+	$sHTML .= "<div id='submitBooking'>Prenota!</div>";
 	$sHTML .= "<div id='submitBookingLong'></div>";
 	$sHTML .= "</div><div class='booking-right'>";
 	$aHours = $this->mController->getWorkhours( $aParams );
 	if( empty( $aHours ) ) {
 	    $sHTML .= "<p class='booking-info'>There are no available booking for this date</p></div><div class='clear'></div>";
-	    
+
 	    return $sHTML;
 	}
-	
+
 	$sHTML .= "<ul class='day-schedule'>";
 	foreach( $aHours as $aHour ) {
 	    $sHTML .= "<li class='hour hour" . ucfirst( $aHour['reason'] ) . "' "
@@ -309,16 +321,16 @@ class ScheduleView {
 	$sHTML .= "</div><div class='clear'></div>";
 	return $sHTML;
     }
-    
+
     /*protected function getFooter() {
 	return '';
 	return "<div class='clear'></div><div class='footer'></div>";
     }*/
-    
+
     public function error() {
 	return "<p class='error'>Error has occured, please try later</p>";
     }
-    
+
     public static function getErrorPayment( $sMessage = '') {
 	$sHTML = "<div class='error-message'>There has been an error!</br>"
 		. "PayPal transaction succeeded but saving that information to your acccount failed!</br>"
@@ -329,10 +341,10 @@ class ScheduleView {
 	$sHTML .= "</div>";
 	return $sHTML;
     }
-    
+
     public static function getSuccessPayment() {
 	$sHTML = "<div class='success-message'>Transaction successful!</div>";
 	return $sHTML;
     }
-    
+
 }
