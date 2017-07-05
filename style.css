@@ -1,5 +1,5 @@
 body {
-    background: url('images/tennis.jpg') no-repeat center center fixed; 
+    background: url('images/tennis.jpg') no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -54,7 +54,7 @@ h2 {
     background-color: #e6e6e6;
     height: auto;
 }
- 
+
 .header .content {
     padding:5px;
     height: auto;
@@ -188,7 +188,7 @@ h2 {
 }
 
 #credit-buy-credit {
-    width:100px;
+    width:120px;
     height:40px;
     color:white;
     background-color: #3f51b5;

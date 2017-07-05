@@ -275,7 +275,7 @@ class ScheduleView {
 	$sHTML .= "<p class='booking-command'>Seleziona una struttura:<p>";
 	$aCourts = $this->mController->getResourcesForDate( $sDate );
 	if( empty( $aCourts ) ) {
-	    $sHTML .= "<p id='no-courts'>No courts are available<p>";
+	    $sHTML .= "<p id='no-courts'>Nessuna struttura disponibile<p>";
 	    return $sHTML;
 	}
 	$sHTML .= "<ul class='resource-selection'>";
@@ -298,7 +298,7 @@ class ScheduleView {
 	$sHTML .= "</div><div class='booking-right'>";
 	$aHours = $this->mController->getWorkhours( $aParams );
 	if( empty( $aHours ) ) {
-	    $sHTML .= "<p class='booking-info'>There are no available booking for this date</p></div><div class='clear'></div>";
+	    $sHTML .= "<p class='booking-info'>In questa data non è disponibile la prenotazione</p></div><div class='clear'></div>";
 
 	    return $sHTML;
 	}
@@ -328,13 +328,13 @@ class ScheduleView {
     }*/
 
     public function error() {
-	return "<p class='error'>Error has occured, please try later</p>";
+	return "<p class='error'>C’è stato un errore, riprova più tardi. Grazie.</p>";
     }
 
     public static function getErrorPayment( $sMessage = '') {
-	$sHTML = "<div class='error-message'>There has been an error!</br>"
-		. "PayPal transaction succeeded but saving that information to your acccount failed!</br>"
-		. "Please save transaction details below and contact site administrator</br></br>";
+	$sHTML = "<div class='error-message'>C’è stato un errore!</br>"
+		. "La transazione PayPal è andata a buon fine ma non è riuscito il salvataggio sul tuo conto.</br>"
+		. "Per favore prendi nota della transazione e contatta l’Amminsitrazione.</br></br>";
 	if( $sMessage ){
 	    $sHTML .= $sMessage;
 	}
@@ -343,7 +343,7 @@ class ScheduleView {
     }
 
     public static function getSuccessPayment() {
-	$sHTML = "<div class='success-message'>Transaction successful!</div>";
+	$sHTML = "<div class='success-message'>Transazione conclusa con successo!</div>";
 	return $sHTML;
     }
 

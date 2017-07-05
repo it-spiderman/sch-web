@@ -1,5 +1,5 @@
 (function () {
-    
+
     /*Datepicker init*/
     $('#booking-date').datepicker({
 	format: "yyyy-mm-dd",
@@ -9,23 +9,23 @@
 	var loc = window.location.pathname + window.location.search;
 	window.location.replace(loc + "&date=" + date);
     });
-    
+
     /*Data tables init */
     $('#credit-table').DataTable();
     $('#membership-table').DataTable();
     $('#bookings-table').DataTable();
-    
+
     /*Buy credit init*/
     $( '#credit-buy-credit' ).click(function() {
 	window.location.replace(window.location.pathname + "?title=buy_credit" );
     });
-    
+
     /*PAYPAL*/
     var amount = 0;
     $('#paypal-credit-amount').change(function(e) {
 	var amount = e.currentTarget.value;
 	if(isNaN( amount ) ) {
-	    
+
 	    return;
 	} else {
 	    amount = parseFloat(amount);
@@ -65,13 +65,13 @@
 			$('#paymentContainer').hide();
 			$('#payment-details').html("<table class='table'><tr><td>Transaction id</td><td>" + e.id  + "</td></tr>"
 				+ "<tr><td>Date</td><td>" + e.create_time + "</td></tr>"
-				+ "<tr><td>Amount</td><td>" + e.transactions[0].amount.total 
+				+ "<tr><td>Amount</td><td>" + e.transactions[0].amount.total
 				+ e.transactions[0].amount.currency + "</td></tr></table>");
 			$.post( "paypal.php", {'action': 'paypal', 'paypal':e})
 				.done( function( ret ) {
 				    console.log(ret);
 				$('#payment-result').html(ret);
-				
+
 			});
 		    });
 		}
@@ -79,17 +79,17 @@
 	    }, '#paypal-button-container');
 	}
     });
-    
-    
-    
+
+
+
     /*Global vars init */
     var t_start = undefined;
     var t_end = undefined;
     var t_price = 0;
     var t_lprice = 0;
-    
-    
-    
+
+
+
     $(".hour").click(function (caller) {
 	var target = $(caller.currentTarget);
 	if (target.hasClass('hourBooked') || target.hasClass('hourClosed'))
@@ -118,7 +118,7 @@
 	    var start = period[0].attributes['data-start'].value;
 	    var end = period[0].attributes['data-end'].value;
 	    var price = period[0].attributes['data-price'].value;
-	    
+
 	    if( period[0].attributes['data-lprice'] ) {
 		var lprice = period[0].attributes['data-lprice'].value;
 		var lprice_message = period[0].attributes['data-lprice-message'].value;
@@ -139,18 +139,18 @@
 	});
 
 	if (t_start && t_end) {
-	    message = "Booking period: " + hourize(t_start) + " - " + hourize(t_end);
+	    message = "Periodo di prenotazione: " + hourize(t_start) + " - " + hourize(t_end);
 	    $('.reservedHours').html(message);
 	} else {
-	    $('.reservedHours').html('Please select the time');
+	    $('.reservedHours').html('Seleziona l’orario');
 	}
 
 	if (!fillInBlanks()) {
 	    $('.hourNew').removeClass('hourNew');
 
-	    $('#errorBooking').html("Selected period is not available").show();
+	    $('#errorBooking').html("Il periodo selezionato non è disponibile").show();
 	    $('#errorBooking').delay(3000).fadeOut(500);
-	    $('.reservedHours').html('Please select the time');
+	    $('.reservedHours').html('Seleziona l’orario');
 	    t_start = t_end = undefined;
 	    t_price = 0;
 	    $('#reservedPrice').html('');
@@ -160,7 +160,7 @@
 	}
 
 	if (t_price > 0) {
-	    $('#reservedPrice').html('Total price: ' + monetize(t_price));
+	    $('#reservedPrice').html('Prezzo Totale: ' + monetize(t_price));
 	} else {
 	    $('#reservedPrice').html('');
 	}
@@ -176,12 +176,12 @@
 	    hideLPriceButton();
 	}
     }
-    
+
     function showLPriceButton( price, message ) {
 	$( '#submitBookingLong' ).html('<span>' + message + '</span><p>' + monetize(price) + '</p>').show();
 	submitLongDisabled = false;
     }
-    
+
     function hideLPriceButton() {
 	$( '#submitBookingLong' ).html('').hide();
 	submitLongDisabled = true;
@@ -198,11 +198,11 @@
 	    var end = el[0].attributes['data-end'].value;
 	    var avb = el[0].attributes['data-available'].value;
 	    var price = el[0].attributes['data-price'].value;
-	    
+
 	    var lprice = 0;
 	    if( el[0].attributes['data-lprice'] ) {
 		lprice = el[0].attributes['data-lprice'].value;
-		
+
 	    }
 	    lprice = parseFloat( lprice );
 
@@ -221,7 +221,7 @@
 		    t_lprice += lprice;
 		}
 	    }
-	    
+
 
 	});
 	return res;
@@ -260,7 +260,7 @@
 	    return;
 	}
 	if (!t_start || !t_end) {
-	    $('#errorBooking').html("You must select the time!").show();
+	    $('#errorBooking').html("Devi selezionare l’ora!").show();
 	    $('#errorBooking').delay(3000).fadeOut(500);
 	    return;
 	}
@@ -269,13 +269,13 @@
 	var time = "&from=" + t_start + "&to=" + t_end;
 	window.location.replace(path + search + time);
     });
-    
+
     $('#submitBookingLong').click(function () {
 	if (submitLongDisabled) {
 	    return;
 	}
 	if (!t_start || !t_end) {
-	    $('#errorBooking').html("You must select the time!").show();
+	    $('#errorBooking').html("Devi selezionare l’ora!").show();
 	    $('#errorBooking').delay(3000).fadeOut(500);
 	    return;
 	}
@@ -310,4 +310,3 @@
 	window.location.replace(loc + "&resource=" + resource_id);
     });
 })();
-
